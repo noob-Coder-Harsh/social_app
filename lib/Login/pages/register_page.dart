@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
@@ -14,9 +15,9 @@ class RegisteredPage extends StatefulWidget {
 
 class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late TextEditingController _usernameController;
-  late TextEditingController _passwordController;
-  late TextEditingController _passwordConfirmController;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmController = TextEditingController();
   bool _isLoading = false;
 
   void signUp() async {
@@ -33,10 +34,19 @@ class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProvid
     }
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+     UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _usernameController.text,
         password: _passwordController.text,
       );
+
+     FirebaseFirestore. instance
+         .collection("Users")
+         .doc(userCredential.user !. email)
+         .set({
+       'username': _usernameController.text.split('@') [0],
+       'bio': 'Empty bio .. ',
+       'contact': 0
+});
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         displayMessage('The email address is badly formatted');

@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             Text('Not a Member?', style: TextStyle(color: Colors.grey.shade700)),
                             TextButton(
                               onPressed: widget.onTap,
-                              child: Text('Register Now', style: TextStyle(color: Colors.blue)),
+                              child: const Text('Register Now', style: TextStyle(color: Colors.blue)),
                             ),
                           ],
                         ),
@@ -128,25 +128,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   void _showTapSplash(BuildContext context, Offset tapPosition) {
-    final overlay = Overlay.of(context)?.context;
-    if (overlay != null) {
-      final splash = Positioned(
-        left: tapPosition.dx - 25,
-        top: tapPosition.dy - 25,
-        child: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black.withOpacity(0.3),
-          ),
+    final overlay = Overlay.of(context).context;
+    final splash = Positioned(
+      left: tapPosition.dx - 25,
+      top: tapPosition.dy - 25,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.black.withOpacity(0.3),
         ),
-      );
-      OverlayEntry entry = OverlayEntry(builder: (context) => splash);
-      Overlay.of(context)?.insert(entry);
-      Future.delayed(Duration(milliseconds: 200), () {
-        entry.remove();
-      });
+      ),
+    );
+    OverlayEntry entry = OverlayEntry(builder: (context) => splash);
+    Overlay.of(context).insert(entry);
+    Future.delayed(const Duration(milliseconds: 200), () {
+      entry.remove();
+    });
     }
-  }
 }

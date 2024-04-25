@@ -3,6 +3,8 @@ import 'package:social_app/Login/pages/login_page.dart';
 import 'package:social_app/Login/pages/register_page.dart';
 
 class LoginOrRegisterPage extends StatefulWidget{
+  const LoginOrRegisterPage({super.key});
+
   @override
   State<LoginOrRegisterPage> createState()=> _LoginOrRegisterPageState();
 }
