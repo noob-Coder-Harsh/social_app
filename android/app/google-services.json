@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149507254710",
+    "project_id": "social-flutter-harshk",
+    "storage_bucket": "social-flutter-harshk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149507254710:android:0fbb616b23bae60f93f917",
+        "android_client_info": {
+          "package_name": "com.example.social_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXSi4mBMEu3Uke0Jf593_yNHolixnmzfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
