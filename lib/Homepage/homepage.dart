@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:social_app/Homepage/helper_methods.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
 import 'package:social_app/Homepage/widgets/feed_post.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -88,7 +89,9 @@ class _HomePageState extends State<HomePage> {
                   return FeedPost(user:post["UserEmail"] ,
                       post: post["Message"],
                       postId: post.id,
-                      likes: List<String>.from(post['Likes']??[]));
+                      likes: List<String>.from(post['Likes']??[]),
+                    time: formatDate(post['TimeStamp']),);
+
                 });
               }else if(snapshot.hasError){
                 return Center(

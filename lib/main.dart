@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:social_app/Firebase/auth.dart';
 import 'package:social_app/Firebase/firebase_options.dart';
 
+import 'navigation_bar.dart';
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
