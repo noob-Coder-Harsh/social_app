@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:social_app/Homepage/New%20Post/new_post.dart';
 import 'package:social_app/Homepage/helper_methods.dart';
-import 'package:social_app/Login/widgets/text_feild.dart';
-import 'package:social_app/Homepage/widgets/feed_post.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:social_app/Profile/profile_page.dart';
+import 'package:social_app/Homepage/Post/feed_post.dart';
 
 
 class HomePage extends StatefulWidget{
@@ -21,20 +19,15 @@ class _HomePageState extends State<HomePage> {
   final textController = TextEditingController();
   final currentUser = FirebaseAuth.instance.currentUser!;
 
+  Future<String> getUsername(String email) async{
+    final userCollection = FirebaseFirestore.instance.collection("Users");
+    final userDoc = await userCollection.doc(email).get();
+    final username = userDoc.data()?['username'];
+    return username ?? '';
 
-  void postMessage(){
-    if(textController.text.isNotEmpty){
-      FirebaseFirestore.instance.collection("User Posts").add({
-        'UserEmail':currentUser.email,
-        'Message' : textController.text,
-        'TimeStamp' : Timestamp.now(),
-        'Likes' : [],
-      });
-    }
-    setState(() {
-      textController.clear();
-    });
   }
+
+
   void signOut(){
     FirebaseAuth.instance.signOut();
   }
@@ -42,67 +35,71 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      bottomNavigationBar: GNav(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        gap: 10,
-        backgroundColor: Colors.grey.shade900,
-        color: Colors.white70,
-        activeColor: Colors.white70,
-        tabs: [
-          GButton(icon: Icons.home,onPressed: (){Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const HomePage()));}),
-          GButton(icon: Icons.person,onPressed: (){Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const ProfilePage()));}),
-
-        ],
-      ),
-      backgroundColor: Colors.grey.shade300,
-      appBar: AppBar(
-        backgroundColor: Colors.grey.shade900,
-        title: const Center(child: Text('Social App',style: TextStyle(color: Colors.white70),)),
-        actions: [
-          IconButton(onPressed: signOut, icon: const Icon(Icons.logout,color: Colors.white70,))
-        ],
-      ),
+      backgroundColor: Colors.grey,
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 18.0,left: 18,right: 18),
-            child: Row(children: [
-              Expanded(
-                child: MyTextFeild(controller: textController
-                    , hintText: 'write something to post',
-                    obscureText: false),
-              ),
-              IconButton(onPressed: postMessage, icon: const Icon(Icons.arrow_circle_up))
-            ],),
-          ),
-          Expanded(child: StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection("User Posts").
-            orderBy("TimeStamp",descending: true).
-            snapshots(),
-            builder: (context,snapshot){
-              if(snapshot.hasData){
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context,index){
-                  final post = snapshot.data!.docs[index];
-                  return FeedPost(user:post["UserEmail"] ,
-                      post: post["Message"],
-                      postId: post.id,
-                      likes: List<String>.from(post['Likes']??[]),
-                    time: formatDate(post['TimeStamp']),);
-
-                });
-              }else if(snapshot.hasError){
-                return Center(
-                  child: Text("Error: $snapshot.error"),
+          const NewPosts(),
+          FutureBuilder<String>(
+            future: getUsername(currentUser.email!), // Fetch username asynchronously
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final username = snapshot.data!;
+                return Text(
+                  "Logged in as - $username",
+                  style: TextStyle(color: Colors.grey.shade900),
                 );
-              }return const Center(
-                child: CircularProgressIndicator(),
-              );
+              } else if (snapshot.hasError) {
+                return Text("Error: ${snapshot.error}");
+              } else {
+                return Text(" ");
+              }
             },
-          )),
-    Text("Logged in as - ${currentUser.email}",style: TextStyle(color: Colors.grey.shade700),),
+          ),
+          Expanded(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("User Posts")
+                  .orderBy("TimeStamp", descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final post = snapshot.data!.docs[index];
+                      return FutureBuilder<String>(
+                        future: getUsername(post["UserEmail"]), // Fetch username asynchronously
+                        builder: (context, usernameSnapshot) {
+                          if (usernameSnapshot.hasData) {
+                            final username = usernameSnapshot.data!;
+                            return FeedPost(
+                              user: username, // Pass username instead of email
+                              post: post["Message"],
+                              postId: post.id,
+                              likes: List<String>.from(post['Likes'] ?? []),
+                              time: formatDate(post['TimeStamp']),
+                            );
+                          } else if (usernameSnapshot.hasError) {
+                            return Text("Error: ${usernameSnapshot.error}");
+                          } else {
+                            return Text(" ");
+                          }
+                        },
+                      );
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error: $snapshot.error"),
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+          ),
+
         ],
       ),
     );

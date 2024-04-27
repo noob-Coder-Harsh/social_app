@@ -3,10 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:social_app/Profile/textbox.dart';
 
-import '../Homepage/homepage.dart';
 
 class ProfilePage extends StatefulWidget{
   const ProfilePage({super.key,});
@@ -57,25 +55,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      bottomNavigationBar: GNav(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        gap: 10,
-        backgroundColor: Colors.grey.shade900,
-        color: Colors.white70,
-        activeColor: Colors.white70,
-        tabs: [
-          GButton(icon: Icons.home,
-              onPressed: (){Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const HomePage()));}),
-          GButton(icon: Icons.person,
-              onPressed: (){Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const ProfilePage()));}),
-        ],
-      ),
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.grey.shade900,
-        title: const Text('Profile',style: TextStyle(color: Colors.white70),),
-      ),
-      backgroundColor: Colors.grey.shade300,
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection("Users").doc(currentUser.email).snapshots(),
         builder: (context,snapshot){

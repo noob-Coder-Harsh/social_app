@@ -66,62 +66,57 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           // Handle tap here
           _showTapSplash(context, details.localPosition);
         },
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter, // Start from bottom
-                  end: Alignment.topCenter, // End at top
-                  colors: [
-                    Color.lerp(Colors.grey.shade700, Colors.grey.shade300, _controller.value)!,
-                    Color.lerp(Colors.grey.shade300, Colors.grey.shade700, _controller.value)!,
-                  ],
-                ),
-              ),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(25.0),
-                    child: Column(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter, // Start from bottom
+              end: Alignment.topCenter, // End at top
+              colors: [
+                Colors.grey.shade900,
+                Colors.grey.shade300
+              ],
+            ),
+          ),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Column(
+                  children: [
+                    Image.asset('assets/title.png',width: 250,),
+                    const SizedBox(height: 50),
+                    Text('Welcome! we missed you', style: TextStyle(color: Colors.grey.shade100)),
+                    const SizedBox(height: 10),
+                    MyTextFeild(
+                      controller: _usernameController,
+                      hintText: 'enter your email',
+                      obscureText: false,
+                    ),
+                    const SizedBox(height: 10),
+                    MyTextFeild(
+                      controller: _passwordController,
+                      hintText: 'enter your password',
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 10),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : MyButton(text: 'Login', function: signIn),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.lock, size: 100),
-                        const SizedBox(height: 20),
-                        Text('Welcome! we missed you', style: TextStyle(color: Colors.grey.shade700)),
-                        const SizedBox(height: 20),
-                        MyTextFeild(
-                          controller: _usernameController,
-                          hintText: 'enter your email',
-                          obscureText: false,
-                        ),
-                        const SizedBox(height: 10),
-                        MyTextFeild(
-                          controller: _passwordController,
-                          hintText: 'enter your password',
-                          obscureText: true,
-                        ),
-                        const SizedBox(height: 10),
-                        _isLoading
-                            ? const CircularProgressIndicator()
-                            : MyButton(text: 'Login', function: signIn),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Not a Member?', style: TextStyle(color: Colors.grey.shade700)),
-                            TextButton(
-                              onPressed: widget.onTap,
-                              child: const Text('Register Now', style: TextStyle(color: Colors.blue)),
-                            ),
-                          ],
+                        Text('Not a Member?', style: TextStyle(color: Colors.grey.shade300)),
+                        TextButton(
+                          onPressed: widget.onTap,
+                          child: Text('Register Now', style: TextStyle(color: Colors.blue.shade500)),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
