@@ -6,7 +6,8 @@ class PostHead extends StatefulWidget{
   final String post;
   final String postId;
   final String time;
-  const PostHead({super.key, required this.user,
+  const PostHead({super.key,
+    required this.user,
     required this.post,
     required this.postId,
     required this.time,});
@@ -16,6 +17,9 @@ class PostHead extends StatefulWidget{
 }
 
 class _PostHeadState extends State<PostHead> {
+  late String _profileImg;
+
+
   @override
   Widget build(BuildContext context){
     return  Column(

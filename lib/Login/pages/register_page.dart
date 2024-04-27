@@ -45,7 +45,8 @@ class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProvid
          .set({
        'username': _usernameController.text.split('@') [0],
        'bio': 'Empty bio .. ',
-       'contact': 0
+       'contact': 0,
+       'profile_img':null
 });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
@@ -173,7 +174,7 @@ class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProvid
       );
       OverlayEntry entry = OverlayEntry(builder: (context) => splash);
       Overlay.of(context).insert(entry);
-      Future.delayed(Duration(milliseconds: 200), () {
+      Future.delayed(const Duration(milliseconds: 200), () {
         entry.remove();
       });
     }

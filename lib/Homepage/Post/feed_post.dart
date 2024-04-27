@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +9,17 @@ import 'package:social_app/Homepage/Post/comment.dart';
 import 'package:social_app/Homepage/Post/comment_button.dart';
 import 'package:social_app/Homepage/Post/like_button.dart';
 
+import '../New Post/new_post.dart';
+import 'firebase_videoplayer.dart';
+
 class FeedPost extends StatefulWidget {
   final String user;
   final String post;
   final String postId;
   final String time;
   final List<String> likes;
+  final String? image;
+  final String? video;
 
   const FeedPost(
       {super.key,
@@ -20,7 +27,9 @@ class FeedPost extends StatefulWidget {
       required this.post,
       required this.postId,
       required this.likes,
-      required this.time});
+      required this.time,
+      this.image,
+      this.video});
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -95,7 +104,7 @@ class _FeedPostState extends State<FeedPost> {
                     height: 50,width: 275,
                     child: TextField(
                       controller: _commentTextController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: "Write a comment...",
                       ),
                     ),
@@ -177,7 +186,10 @@ class _FeedPostState extends State<FeedPost> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/test2.jpg')
+                  if (widget.image != null)
+                    Image.network(widget.image!)
+                  else if (widget.video != null)
+                    FirebaseVideoPlayerWidget(videoUrl: widget.video!),
                 ],
               ),
             ),
@@ -196,12 +208,9 @@ class _FeedPostState extends State<FeedPost> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
-            child: Text("Liked by ${widget.likes.length} and others"),
+            child: Text("${widget.likes.length} Likes",style: TextStyle(fontWeight: FontWeight.bold),),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0,right: 18),
-            child: Text('Commented by 0....'),
-          ),
+
           SizedBox(height: 10,)
 
         ],

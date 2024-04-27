@@ -38,7 +38,6 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.grey,
       body: Column(
         children: [
-          const NewPosts(),
           FutureBuilder<String>(
             future: getUsername(currentUser.email!), // Fetch username asynchronously
             builder: (context, snapshot) {
@@ -78,6 +77,8 @@ class _HomePageState extends State<HomePage> {
                               postId: post.id,
                               likes: List<String>.from(post['Likes'] ?? []),
                               time: formatDate(post['TimeStamp']),
+                              image: post['Image'],
+                              video: post['Video'],
                             );
                           } else if (usernameSnapshot.hasError) {
                             return Text("Error: ${usernameSnapshot.error}");
