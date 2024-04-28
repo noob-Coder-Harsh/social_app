@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:social_app/Homepage/New%20Post/video_player.dart';
+import 'package:social_app/Homepage/homepage.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
+import 'package:social_app/navigation_bar.dart';
 
 
 class NewPostsBottom extends StatefulWidget{
@@ -90,6 +92,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
 
   void postMessage() async {
     if (textController.text.isEmpty && _imageFile == null && _videoFile == null) {
+      // Show error dialog if no message, image, or video is provided
       showDialog(
         context: context,
         builder: (context) {
@@ -114,18 +117,37 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
       String? imageUrl;
       String? videoUrl;
 
+      // Show progress dialog while uploading media
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+        builder: (context) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text("Uploading..."),
+            ],
+          ),
+        ),
+      );
+
       if (_imageFile != null) {
-        imageUrl = await uploadFileToStorage(_imageFile!,currentUser.email!);
+        imageUrl = await uploadFileToStorage(_imageFile!, currentUser.email!);
       }
       if (_videoFile != null) {
-        videoUrl = await uploadFileToStorage(_videoFile!,currentUser.email!);
+        videoUrl = await uploadFileToStorage(_videoFile!, currentUser.email!);
       }
+      Navigator.pop(context); // Dismiss the progress dialog
+
       await FirebaseFirestore.instance.collection("User Posts").add({
         'UserEmail': currentUser.email,
         'Message': textController.text,
         'Image': imageUrl,
         'Video': videoUrl,
         'TimeStamp': Timestamp.now(),
+        'EditedTime' : null,
         'Likes': [],
       });
       setState(() {
@@ -133,6 +155,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
         _imageFile = null;
         _videoFile = null;
       });
+
     } catch (e) {
       print('Error uploading file: $e');
       // Handle error while uploading files
@@ -155,6 +178,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
       );
     }
   }
+
 
   Future<String> uploadFileToStorage(File file, String userEmail) async {
     try {

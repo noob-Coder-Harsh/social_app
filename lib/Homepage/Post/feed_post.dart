@@ -20,6 +20,7 @@ class FeedPost extends StatefulWidget {
   final List<String> likes;
   final String? image;
   final String? video;
+  final String profileImage;
 
   const FeedPost(
       {super.key,
@@ -29,7 +30,7 @@ class FeedPost extends StatefulWidget {
       required this.likes,
       required this.time,
       this.image,
-      this.video});
+      this.video, required this.profileImage});
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -47,13 +48,82 @@ class _FeedPostState extends State<FeedPost> {
     isLiked = widget.likes.contains(currentUser.email);
   }
 
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      //main container of post
+      margin: const EdgeInsets.only(top: 5,left: 5,right: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+          color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
+            child: PostHead(
+              user: widget.user,
+              post: widget.post,
+              postId: widget.postId,
+              time: widget.time,
+              profileImage: widget.profileImage,),
+          ),
+          SingleChildScrollView(
+            child: SizedBox(
+              //caption container
+              width: size.width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
+                    child: Text(
+                      widget.post,
+                      style: TextStyle(
+                        color: Colors.grey.shade900,
+                      ),
+                    ),
+                  ),
+                  if (widget.image != null)
+                    Image.network(widget.image!,)
+                  else if (widget.video != null)
+                    FirebaseVideoPlayerWidget(videoUrl: widget.video!),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
+            child: Row(
+              children: [
+                LikeButton(onTap: toggleLikes, isLiked: isLiked),
+                const SizedBox(
+                  width: 10,
+                ),
+                CommentButton(onTap: showCommentDialog),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
+            child: Text("${widget.likes.length} Likes",style: TextStyle(fontWeight: FontWeight.bold),),
+          ),
+
+          SizedBox(height: 10,)
+
+        ],
+      ),
+    );
+  }
   void toggleLikes() {
     setState(() {
       isLiked = !isLiked;
     });
 
     DocumentReference postRef =
-        FirebaseFirestore.instance.collection('User Posts').doc(widget.postId);
+    FirebaseFirestore.instance.collection('User Posts').doc(widget.postId);
 
     if (isLiked) {
       postRef.update({
@@ -77,7 +147,6 @@ class _FeedPostState extends State<FeedPost> {
       "CommentTime": Timestamp.now()
     });
   }
-
 
   void showCommentDialog() {
     showModalBottomSheet(
@@ -153,70 +222,5 @@ class _FeedPostState extends State<FeedPost> {
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Container(
-      //main container of post
-      margin: const EdgeInsets.only(top: 5,left: 5,right: 5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-          color: Colors.white),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
-            child: PostHead(user: widget.user, post: widget.post, postId: widget.postId, time: widget.time),
-          ),
-          SingleChildScrollView(
-            child: SizedBox(
-              //caption container
-              width: size.width,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
-                    child: Text(
-                      widget.post,
-                      style: TextStyle(
-                        color: Colors.grey.shade900,
-                      ),
-                    ),
-                  ),
-                  if (widget.image != null)
-                    Image.network(widget.image!)
-                  else if (widget.video != null)
-                    FirebaseVideoPlayerWidget(videoUrl: widget.video!),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
-            child: Row(
-              children: [
-                LikeButton(onTap: toggleLikes, isLiked: isLiked),
-                const SizedBox(
-                  width: 10,
-                ),
-                CommentButton(onTap: showCommentDialog),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
-            child: Text("${widget.likes.length} Likes",style: TextStyle(fontWeight: FontWeight.bold),),
-          ),
-
-          SizedBox(height: 10,)
-
-        ],
-      ),
-    );
-  }
-
 
 }

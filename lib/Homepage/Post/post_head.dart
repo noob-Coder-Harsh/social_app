@@ -6,18 +6,20 @@ class PostHead extends StatefulWidget{
   final String post;
   final String postId;
   final String time;
+  final String profileImage; // Add profileImage parameter
+
   const PostHead({super.key,
     required this.user,
     required this.post,
     required this.postId,
-    required this.time,});
+    required this.time,
+    required this.profileImage,});
 
   @override
   State<PostHead> createState() => _PostHeadState();
 }
 
 class _PostHeadState extends State<PostHead> {
-  late String _profileImg;
 
 
   @override
@@ -25,16 +27,9 @@ class _PostHeadState extends State<PostHead> {
     return  Column(
       children: [
         Row(children: [
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.grey.shade700, shape: BoxShape.circle),
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.person,
-                color: Colors.white,
-              ),
-            ),
+          CircleAvatar(
+            backgroundImage: NetworkImage(widget.profileImage), // Display profile image
+            backgroundColor: Colors.grey, // You can change this color or remove it
           ),
           const SizedBox(
             width: 10,
