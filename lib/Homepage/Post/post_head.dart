@@ -1,25 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class PostHead extends StatefulWidget{
   final String user;
   final String post;
   final String postId;
   final String time;
-  final String profileImage; // Add profileImage parameter
+  final String profileImage;
+  final String userId;
 
   const PostHead({super.key,
     required this.user,
     required this.post,
     required this.postId,
     required this.time,
-    required this.profileImage,});
+    required this.profileImage, required this.userId,});
 
   @override
   State<PostHead> createState() => _PostHeadState();
 }
 
 class _PostHeadState extends State<PostHead> {
+  bool isFollowing = false; // Add a state variable to track follow status
+
 
 
   @override
@@ -47,7 +52,13 @@ class _PostHeadState extends State<PostHead> {
               ),
             ],
           ),
+
           const Spacer(),
+          TextButton(onPressed: toggleFollow,style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+              backgroundColor: MaterialStateProperty.all(Colors.grey.shade900)),
+              child: Text(isFollowing ? 'unfollow' : 'follow'),
+          ),
           IconButton(
               onPressed: () {
                 showPopupMenu(context);
@@ -147,7 +158,68 @@ class _PostHeadState extends State<PostHead> {
                 },
                 child: const Text("Delete"),
               ),
-// TextButton
-            ]));
+            ]
+        )
+    );
   }
+
+  void toggleFollow() async {
+    setState(() {
+      isFollowing = !isFollowing;
+    });
+
+    final followedUserId = widget.userId;
+    if (isFollowing) {
+      // Follow user
+      await followUser(followedUserId);
+    } else {
+      // Unfollow user
+      await unfollowUser(followedUserId);
+    }
+  }
+
+  Future<void> checkFollowStatus(String followedUserId) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final currentUserRef = FirebaseFirestore.instance.collection('Users').doc(currentUser.email);
+      final followDoc = await currentUserRef.collection('Following').doc(followedUserId).get();
+
+      setState(() {
+        isFollowing = followDoc.exists;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final followedUserId = widget.userId;
+    checkFollowStatus(followedUserId);
+  }
+
+
+
+  Future<void> followUser(String followedUserId) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final currentUserRef = FirebaseFirestore.instance.collection('Users').doc(currentUser.email);
+
+      await currentUserRef.collection('Following').doc(followedUserId).set({
+        'followedUserId': followedUserId,
+      });
+      print('follower added');
+    }
+  }
+
+  Future<void> unfollowUser(String followedUserId) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final currentUserRef = FirebaseFirestore.instance.collection('Users').doc(currentUser.email);
+
+      await currentUserRef.collection('Following').doc(followedUserId).delete();
+    }
+    print('follower removed');
+  }
+
+
 }

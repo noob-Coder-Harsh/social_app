@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class _HomePageState extends State<HomePage> {
               child: StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection("User Posts")
+                    .where('IsPublic', isEqualTo: true)
                     .orderBy("TimeStamp", descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -71,7 +73,8 @@ class _HomePageState extends State<HomePage> {
                                 time: '$formattedTime   $timeText',
                                 image: post['Image'],
                                 video: post['Video'],
-                                profileImage: profileImage,
+                                profileImage: profileImage ?? "https://firebasestorage.googleapis.com/v0/b/social-flutter-harshk.appspot.com/o/user.png?alt=media&token=173cf9e4-ce01-4572-8bef-776c6b714c6d",
+                                userId: post['UserEmail'],
                               );
                             } else if (userDataSnapshot.hasError) {
                               return Text("Error: ${userDataSnapshot.error}");

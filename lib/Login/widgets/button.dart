@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 class MyButton extends StatelessWidget {
   final Function()? function;
   final String text;
+  final double? height;
 
   const MyButton({
     super.key,
     required this.function,
-    required this.text,
+    required this.text, this.height,
   });
   @override
   Widget build(BuildContext context) {

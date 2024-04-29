@@ -21,6 +21,7 @@ class FeedPost extends StatefulWidget {
   final String? image;
   final String? video;
   final String profileImage;
+  final String userId;
 
   const FeedPost(
       {super.key,
@@ -30,7 +31,7 @@ class FeedPost extends StatefulWidget {
       required this.likes,
       required this.time,
       this.image,
-      this.video, required this.profileImage});
+      this.video, required this.profileImage, required this.userId});
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -68,7 +69,8 @@ class _FeedPostState extends State<FeedPost> {
               post: widget.post,
               postId: widget.postId,
               time: widget.time,
-              profileImage: widget.profileImage,),
+              profileImage: widget.profileImage,
+              userId: widget.userId,),
           ),
           SingleChildScrollView(
             child: SizedBox(

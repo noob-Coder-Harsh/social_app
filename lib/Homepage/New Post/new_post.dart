@@ -7,9 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:social_app/Homepage/New%20Post/video_player.dart';
-import 'package:social_app/Homepage/homepage.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
-import 'package:social_app/navigation_bar.dart';
 
 
 class NewPostsBottom extends StatefulWidget{
@@ -24,6 +22,8 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
   final textController = TextEditingController();
   File? _imageFile;
   File? _videoFile;
+  bool _isPublic = true; // Add this line to represent the privacy status
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +41,11 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: MyTextFeild(
+                    child: MyTextField(
                       controller: textController,
                       hintText: 'write something to post',
                       obscureText: false,
+                      type: TextInputType.text,
                     ),
                   ),
                 ),
@@ -82,8 +83,22 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
                   },
                   child: const Text('Add Video'),
                 ),
+                Column(
+                  children: [
+                    const Text('Public',style: TextStyle(color: Colors.white),),
+                    Switch(
+                      value: _isPublic,
+                      onChanged: (value) {
+                        setState(() {
+                          _isPublic = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
+
           ],
         ),
       ),
@@ -149,11 +164,13 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
         'TimeStamp': Timestamp.now(),
         'EditedTime' : null,
         'Likes': [],
+        'IsPublic': _isPublic, // Save the privacy status
       });
       setState(() {
         textController.clear();
         _imageFile = null;
         _videoFile = null;
+        _isPublic = true;
       });
 
     } catch (e) {
