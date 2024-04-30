@@ -6,9 +6,8 @@ import 'package:social_app/Homepage/helper_methods.dart';
 import 'package:social_app/Homepage/Post/feed_post.dart';
 
 
-class HomePage extends StatefulWidget{
-
-  const HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,8 +16,19 @@ class HomePage extends StatefulWidget{
 class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
 
-  final textController = TextEditingController();
   final currentUser = FirebaseAuth.instance.currentUser!;
+
+  Future<List<String>> getFollowingList() async {
+    final followingSnapshot = await FirebaseFirestore.instance
+        .collection("Users")
+        .doc(currentUser.email)
+        .collection("Following")
+        .get();
+
+    final followingList =
+    followingSnapshot.docs.map((doc) => doc.id).toList();
+    return followingList;
+  }
 
   Future<Map<String, dynamic>> getUserData(String email) async {
     final userCollection = FirebaseFirestore.instance.collection("Users");
@@ -27,81 +37,182 @@ class _HomePageState extends State<HomePage> {
     return userData ?? {};
   }
 
-
-  void signOut(){
+  void signOut() {
     FirebaseAuth.instance.signOut();
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey,
-      body: Column(
-        children: [
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _refreshHomePage,
-              child: StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection("User Posts")
-                    .where('IsPublic', isEqualTo: true)
-                    .orderBy("TimeStamp", descending: true)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
+      body: RefreshIndicator(
+        onRefresh: _refreshHomePage,
+        child: CustomScrollView(
+          slivers: [
+            FutureBuilder<List<String>>(
+              future: getFollowingList(),
+              builder: (context, followingSnapshot) {
+                if (followingSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (!followingSnapshot.hasData ||
+                    followingSnapshot.data!.isEmpty) {
+                  // If user is not following anyone
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Text("Follow someone to see their posts on top",
+                        style: TextStyle(color: Colors.white),),
+                    ),
+                  );
+                } else {
+                  // Fetch posts from followed users
+                  return StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection("User Posts")
+                        .where('UserEmail',
+                        whereIn: followingSnapshot.data!)
+                        .orderBy("TimeStamp", descending: true)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                              final post = snapshot.data!.docs[index];
+                              String timeText =
+                              post['EditedTime'] != null ? 'edited' : '';
+                              String formattedTime =
+                              post['EditedTime'] != null
+                                  ? formatDate(post['EditedTime'])
+                                  : formatDate(post['TimeStamp']);
+                              return FutureBuilder<Map<String, dynamic>>(
+                                future:
+                                getUserData(post["UserEmail"]),
+                                builder: (context, userDataSnapshot) {
+                                  if (userDataSnapshot.hasData) {
+                                    final userData =
+                                    userDataSnapshot.data!;
+                                    final username =
+                                    userData["username"];
+                                    final profileImage =
+                                    userData["profile_img"];
+                                    return FeedPost(
+                                      user: username,
+                                      post: post["Message"],
+                                      postId: post.id,
+                                      likes: List<String>.from(
+                                          post['Likes'] ?? []),
+                                      time: '$formattedTime   $timeText',
+                                      image: post['Image'],
+                                      video: post['Video'],
+                                      profileImage: profileImage ??
+                                          "https://firebasestorage.googleapis.com/v0/b/social-flutter-harshk.appspot.com/o/user.png?alt=media&token=173cf9e4-ce01-4572-8bef-776c6b714c6d",
+                                      userId: post['UserEmail'],
+                                    );
+                                  } else if (userDataSnapshot.hasError) {
+                                    return Text(
+                                        "Error: ${userDataSnapshot.error}");
+                                  } else {
+                                    return Text(" ");
+                                  }
+                                },
+                              );
+                            },
+                            childCount: snapshot.data!.docs.length,
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return SliverToBoxAdapter(
+                          child: Center(
+                            child: Text("Error: $snapshot.error"),
+                          ),
+                        );
+                      }
+                      return const SliverToBoxAdapter(
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
+            ),
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("User Posts")
+                  .where('IsPublic', isEqualTo: true)
+                  .orderBy("TimeStamp", descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) {
                         final post = snapshot.data!.docs[index];
-                        String timeText = post['EditedTime'] != null ? 'edited' : '';
-                        String formattedTime = post['EditedTime'] != null
+                        String timeText =
+                        post['EditedTime'] != null ? 'edited' : '';
+                        String formattedTime =
+                        post['EditedTime'] != null
                             ? formatDate(post['EditedTime'])
                             : formatDate(post['TimeStamp']);
                         return FutureBuilder<Map<String, dynamic>>(
-                          future: getUserData(post["UserEmail"]), // Fetch username asynchronously
+                          future: getUserData(post["UserEmail"]),
                           builder: (context, userDataSnapshot) {
                             if (userDataSnapshot.hasData) {
-                              // final username = usernameSnapshot.data!;
                               final userData = userDataSnapshot.data!;
-                              final username = userData["username"]; // Assuming "username" is a key in your user data
-                              final profileImage = userData["profile_img"]; // Assuming "profile_img" is a key for profile image URL
+                              final username = userData["username"];
+                              final profileImage =
+                              userData["profile_img"];
                               return FeedPost(
                                 user: username,
                                 post: post["Message"],
                                 postId: post.id,
-                                likes: List<String>.from(post['Likes'] ?? []),
+                                likes: List<String>.from(
+                                    post['Likes'] ?? []),
                                 time: '$formattedTime   $timeText',
                                 image: post['Image'],
                                 video: post['Video'],
-                                profileImage: profileImage ?? "https://firebasestorage.googleapis.com/v0/b/social-flutter-harshk.appspot.com/o/user.png?alt=media&token=173cf9e4-ce01-4572-8bef-776c6b714c6d",
+                                profileImage: profileImage ??
+                                    "https://firebasestorage.googleapis.com/v0/b/social-flutter-harshk.appspot.com/o/user.png?alt=media&token=173cf9e4-ce01-4572-8bef-776c6b714c6d",
                                 userId: post['UserEmail'],
                               );
                             } else if (userDataSnapshot.hasError) {
-                              return Text("Error: ${userDataSnapshot.error}");
+                              return Text(
+                                  "Error: ${userDataSnapshot.error}");
                             } else {
                               return Text(" ");
                             }
                           },
                         );
                       },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text("Error: $snapshot.error"),
-                    );
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                      childCount: snapshot.data!.docs.length,
+                    ),
                   );
-                },
-              ),
+                } else if (snapshot.hasError) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Text("Error: $snapshot.error"),
+                    ),
+                  );
+                }
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              },
             ),
-          ),
-
-        ],
+          ],
+        ),
       ),
     );
   }
+
   Future<void> _refreshHomePage() async {
     // Set _isLoading to true to indicate that data is being loaded
     setState(() {
@@ -116,3 +227,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
+
+
+

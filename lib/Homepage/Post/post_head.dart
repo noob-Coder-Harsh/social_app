@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:social_app/Homepage/Post/edit_post.dart';
 
 
 class PostHead extends StatefulWidget{
@@ -25,6 +26,18 @@ class PostHead extends StatefulWidget{
 class _PostHeadState extends State<PostHead> {
   bool isFollowing = false; // Add a state variable to track follow status
 
+  @override
+  void initState() {
+    super.initState();
+    final followedUserId = widget.userId;
+    checkFollowStatus(followedUserId);
+  }
+
+  @override
+  void dispose() {
+    // Cancel any ongoing asynchronous operations here
+    super.dispose();
+  }
 
 
   @override
@@ -87,7 +100,16 @@ class _PostHeadState extends State<PostHead> {
       context: context,
       position: positionPopup,
       items: [
-        const PopupMenuItem(
+         PopupMenuItem(
+          onTap: (){
+            showModalBottomSheet(
+              context: context,
+              builder: (BuildContext context) {
+                return EditPostPage(postId: widget.postId);
+              },
+            );
+
+          },
           value: 'edit',
           child: Text('Edit'),
         ),
@@ -190,15 +212,6 @@ class _PostHeadState extends State<PostHead> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    final followedUserId = widget.userId;
-    checkFollowStatus(followedUserId);
-  }
-
-
-
   Future<void> followUser(String followedUserId) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
@@ -220,6 +233,4 @@ class _PostHeadState extends State<PostHead> {
     }
     print('follower removed');
   }
-
-
 }

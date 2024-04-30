@@ -48,7 +48,7 @@ class _EditPostPageState extends State<EditPostPage> {
           originalTime = formatDate(postSnapshot['TimeStamp']);
           editedTime = postSnapshot['EditedTime'] != null
               ? formatDateTime(postSnapshot['EditedTime'])
-              : ''; // If edited time is null, assign an empty string
+              : 'not edited yet'; // If edited time is null, assign an empty string
         });
       }
     } catch (error) {
@@ -77,44 +77,13 @@ class _EditPostPageState extends State<EditPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Post'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: () {
-              final newPostText = _postTextController.text.trim();
-              if (newPostText.isNotEmpty) {
-                updatePost(newPostText);
-              } else {
-                // Show an error message if the post text is empty
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Error'),
-                    content: const Text('Post text cannot be empty.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-        ],
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
           gradient: LinearGradient(
             colors: [
-              Colors.blue,
-              Colors.red,
+              Colors.grey.shade300,
+              Colors.grey.shade700,
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -125,6 +94,7 @@ class _EditPostPageState extends State<EditPostPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 50,),
               Text(
                 'Original Post Time: $originalTime',
                 style:
@@ -147,10 +117,32 @@ class _EditPostPageState extends State<EditPostPage> {
                   ),
                 ),
               ),
+              ElevatedButton(onPressed: (){
+                final newPostText = _postTextController.text.trim();
+                if (newPostText.isNotEmpty) {
+                  updatePost(newPostText);
+                } else {
+                  // Show an error message if the post text is empty
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Error'),
+                      content: const Text('Post text cannot be empty.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              }, child: Text('update'))
             ],
           ),
         ),
-      ),
     );
   }
 }

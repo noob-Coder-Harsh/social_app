@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:social_app/Login/pages/login_phone.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
 import '../widgets/button.dart';
+import 'google_login.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -41,15 +42,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3), // Adjust duration as needed
-    )..repeat(reverse: true);
-
-  }
 
   @override
   void dispose() {
@@ -100,10 +92,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   _isLoading
                       ? const CircularProgressIndicator()
                       : MyButton(text: 'Login', function: signIn),
-                  SizedBox(height: 10,),
+                  const SizedBox(height: 10,),
                   MyButton(function: (){
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const LoginWithPhone()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginWithPhone()));
                   }, text: 'Login with Phone'),
+                  const SizedBox(height: 10,),
+                  MyButton(function: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const GoogleSignInScreen()));
+                  }, text: 'Login with google'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
