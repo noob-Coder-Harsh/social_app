@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:social_app/Login/pages/login_phone.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
+import '../../navigation_bar.dart';
 import '../widgets/button.dart';
-import 'google_login.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -19,7 +20,40 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   final  _usernameController = TextEditingController();
   final  _passwordController = TextEditingController();
   bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  Future<User?> _signInWithGoogle() async {
+    try {
+      // Trigger the Google Sign-In flow
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+
+      if (googleSignInAccount != null) {
+        // Obtain the GoogleSignInAuthentication object
+        final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+        // Create a new credential
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        // Sign in to Firebase with the Google credential
+        final UserCredential authResult = await _auth.signInWithCredential(credential);
+        final User? user = authResult.user;
+
+        return user;
+      } else {
+        // Google sign in was canceled
+        return null;
+      }
+    } catch (error) {
+      displayMessage("Google Sign-In Error: $error");
+      return null;
+    }
+  }
 
   void signIn() async {
     setState(() {
@@ -91,15 +125,27 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   const SizedBox(height: 10),
                   _isLoading
                       ? const CircularProgressIndicator()
-                      : MyButton(text: 'Login', function: signIn),
+                      : MyButton(text: 'Email Login', function: signIn,
+                      imageName: Image.asset('assets/gmail.png',width: 20,height: 20,)
+                  ),
                   const SizedBox(height: 10,),
                   MyButton(function: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginWithPhone()));
-                  }, text: 'Login with Phone'),
+                  }, text: 'Login with Phone',
+                      imageName: Image.asset('assets/telephone.png',width: 20,height: 20,)
+                  ),
                   const SizedBox(height: 10,),
-                  MyButton(function: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const GoogleSignInScreen()));
-                  }, text: 'Login with google'),
+                  MyButton(function: () async {
+                    User? user = await _signInWithGoogle();
+                    if (user != null) {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>const CustomNavigationBar()));
+                    } else {
+                      displayMessage('Sign in failed. Please try again.');
+                    }
+                  }, text: 'Login with google',
+                    imageName: Image.asset('assets/google.png',width: 20,height: 20,)
+                  ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

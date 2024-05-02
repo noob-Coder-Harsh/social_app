@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:social_app/Homepage/New%20Post/new_post.dart';
-import 'package:social_app/Homepage/homepage.dart';
+import 'package:social_app/Homepage/homepage2.dart';
 import 'package:social_app/Profile/profile_page.dart';
 
 import 'custom_appbar.dart';
@@ -57,7 +57,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
             _selectedIndex = index;
           });
         },
-        children: const [
+        children: [
           HomePage(),
           NewPostsBottom(),
           ProfilePage()

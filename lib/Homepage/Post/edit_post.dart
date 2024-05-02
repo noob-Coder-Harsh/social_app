@@ -67,9 +67,7 @@ class _EditPostPageState extends State<EditPostPage> {
           .collection('User Posts')
           .doc(widget.postId)
           .update({'Message': newPostText, 'EditedTime': Timestamp.now()});
-
-      Navigator.pop(
-          context); // Go back to the previous screen after updating the post
+      Navigator.pop(context);
     } catch (error) {
       print('Error updating post: $error');
     }
@@ -77,72 +75,59 @@ class _EditPostPageState extends State<EditPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          gradient: LinearGradient(
-            colors: [
-              Colors.grey.shade300,
-              Colors.grey.shade700,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 50,),
+          Text(
+            'Original Post Time: $originalTime',
+            style:
+            const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 50,),
-              Text(
-                'Original Post Time: $originalTime',
-                style:
-                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          const SizedBox(height: 8),
+          Text(
+            'Edited Time: $editedTime',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _postTextController,
+            maxLines: null,
+            decoration: const InputDecoration(
+              suffixIcon: Icon(Icons.edit),
+              hintText: 'Enter your updated text...',
+              border: OutlineInputBorder(
+                borderSide: BorderSide(width: 1, color: Colors.white),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Edited Time: $editedTime',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _postTextController,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  suffixIcon: Icon(Icons.edit),
-                  hintText: 'Enter your updated post...',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(width: 15, color: Colors.black),
-                  ),
-                ),
-              ),
-              ElevatedButton(onPressed: (){
-                final newPostText = _postTextController.text.trim();
-                if (newPostText.isNotEmpty) {
-                  updatePost(newPostText);
-                } else {
-                  // Show an error message if the post text is empty
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Error'),
-                      content: const Text('Post text cannot be empty.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('OK'),
-                        ),
-                      ],
+            ),
+          ),
+          ElevatedButton(onPressed: (){
+            final newPostText = _postTextController.text.trim();
+            if (newPostText.isNotEmpty) {
+              updatePost(newPostText);
+            } else {
+              // Show an error message if the post text is empty
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Error'),
+                  content: const Text('Post text cannot be empty.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
                     ),
-                  );
-                }
-              }, child: Text('update'))
-            ],
-          ),
-        ),
+                  ],
+                ),
+              );
+            }
+          }, child: Text('update'))
+        ],
+      ),
     );
   }
 }

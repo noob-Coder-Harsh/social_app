@@ -46,6 +46,7 @@ dependencies:
   image_cropper: ^5.0.1
   pinput: ^4.0.0
   google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.2.0
 #  cloud_firestore: ^4.15.8
 
 dev_dependencies:

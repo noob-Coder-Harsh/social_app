@@ -39,6 +39,10 @@ class _PostHeadState extends State<PostHead> {
     super.dispose();
   }
 
+  void displayMessage(String message){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
 
   @override
   Widget build(BuildContext context){
@@ -103,12 +107,14 @@ class _PostHeadState extends State<PostHead> {
          PopupMenuItem(
           onTap: (){
             showModalBottomSheet(
+              elevation: 10,
               context: context,
               builder: (BuildContext context) {
-                return EditPostPage(postId: widget.postId);
+                return SizedBox(
+                  height: 700,
+                    child: EditPostPage(postId: widget.postId));
               },
             );
-
           },
           value: 'edit',
           child: Text('Edit'),
@@ -117,6 +123,11 @@ class _PostHeadState extends State<PostHead> {
           onTap: deletePost,
           value: 'delete',
           child: const Text('Delete'),
+        ),
+        PopupMenuItem(
+          onTap: hidePost,
+          value: 'hide',
+          child: const Text('Hide'),
         ),
       ],
       elevation: 8.0,
@@ -202,15 +213,18 @@ class _PostHeadState extends State<PostHead> {
 
   Future<void> checkFollowStatus(String followedUserId) async {
     final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
+    if (currentUser != null && mounted) { // Add mounted check
       final currentUserRef = FirebaseFirestore.instance.collection('Users').doc(currentUser.email);
       final followDoc = await currentUserRef.collection('Following').doc(followedUserId).get();
 
-      setState(() {
-        isFollowing = followDoc.exists;
-      });
+      if (mounted) { // Check mounted again before calling setState()
+        setState(() {
+          isFollowing = followDoc.exists;
+        });
+      }
     }
   }
+
 
   Future<void> followUser(String followedUserId) async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -220,7 +234,7 @@ class _PostHeadState extends State<PostHead> {
       await currentUserRef.collection('Following').doc(followedUserId).set({
         'followedUserId': followedUserId,
       });
-      print('follower added');
+      displayMessage('follower added');
     }
   }
 
@@ -231,6 +245,18 @@ class _PostHeadState extends State<PostHead> {
 
       await currentUserRef.collection('Following').doc(followedUserId).delete();
     }
-    print('follower removed');
+    displayMessage('follower removed');
+  }
+
+  void hidePost() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final userRef =
+      FirebaseFirestore.instance.collection('Users').doc(currentUser.email);
+      await userRef.update({
+        'hidden_posts': FieldValue.arrayUnion([widget.postId])
+      });
+      displayMessage("Post marked as Hidden");
+    }
   }
 }
