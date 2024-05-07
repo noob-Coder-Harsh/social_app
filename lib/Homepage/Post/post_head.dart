@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_app/Homepage/Post/edit_post.dart';
+import 'package:social_app/Homepage/helper_methods.dart';
+
 
 
 class PostHead extends StatefulWidget{
@@ -104,15 +106,16 @@ class _PostHeadState extends State<PostHead> {
       context: context,
       position: positionPopup,
       items: [
-         PopupMenuItem(
-          onTap: (){
+        PopupMenuItem(
+          onTap: () {
             showModalBottomSheet(
               elevation: 10,
               context: context,
               builder: (BuildContext context) {
                 return SizedBox(
                   height: 700,
-                    child: EditPostPage(postId: widget.postId));
+                  child: EditPostPage(postId: widget.postId),
+                );
               },
             );
           },
@@ -129,6 +132,14 @@ class _PostHeadState extends State<PostHead> {
           value: 'hide',
           child: const Text('Hide'),
         ),
+        PopupMenuItem(
+          value: 'snooze',
+          child: const Text('Snooze'),
+          // Add onTap handler for snooze action
+          onTap: () {
+            showSnoozeOptions(context);
+          },
+        ),
       ],
       elevation: 8.0,
     ).then((value) {
@@ -139,6 +150,94 @@ class _PostHeadState extends State<PostHead> {
       }
     });
   }
+
+  void showSnoozeOptions(BuildContext context) {
+    // Show a dialog or bottom sheet to select snooze duration
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Snooze Post'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                title: Text('10 minutes'),
+                onTap: () {
+                  snoozePost(Duration(minutes: 10));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('1 hour'),
+                onTap: () {
+                  snoozePost(Duration(hours: 1));
+                },
+              ),
+              ListTile(
+                title: Text('1 day'),
+                onTap: () {
+                  snoozePost(Duration(days: 1));
+                },
+              ),
+              ListTile(
+                title: Text('30 days'),
+                onTap: () {
+                  snoozePost(Duration(days: 30));
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void snoozePost(Duration duration) async {
+    final currentTime = DateTime.now();
+    final snoozeEndTime = currentTime.add(duration);
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final userRef = FirebaseFirestore.instance.collection('Users').doc(currentUser.email);
+      final postId = widget.postId;
+
+      // Add post ID to snoozed posts with snooze end time
+      await userRef.update({
+        'snoozed_posts.$postId': snoozeEndTime.toUtc(), // Store end time as UTC
+      });
+
+      // Show Snackbar notification to user
+      final userDisplayName = widget.user;
+      // String formattedDate = formatDate(snoozeEndTime as Timestamp);
+      final snackbarMessage = 'Post by $userDisplayName has been snoozed until $snoozeEndTime';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(snackbarMessage)));
+
+      // Schedule a task to remove expired snoozed posts after snooze time ends
+      // Future.delayed(duration, () {
+      //   _removeExpiredSnoozedPosts(postId, userRef);
+      // });
+    }
+  }
+
+  // void _removeExpiredSnoozedPosts(String postId, DocumentReference userRef) async {
+  //   // Get current time
+  //   final currentTime = DateTime.now();
+  //
+  //   // Retrieve snooze end time from user's collection
+  //   final userData = await userRef.get();
+  //   final snoozedPosts = Map<String, dynamic>.from((userData.data() ?? {})['snoozed_posts'] ?? {});// Check if the post is snoozed
+  //   if (snoozedPosts.containsKey(postId)) {
+  //     final snoozeEndTime = snoozedPosts[postId].toDate(); // Convert Firestore timestamp to DateTime
+  //
+  //     // If snooze time has passed, remove post ID from snoozed posts
+  //     if (currentTime.isAfter(snoozeEndTime)) {
+  //       await userRef.update({'snoozed_posts.$postId': FieldValue.delete()});
+  //     }
+  //   }
+  // }
+
 
   void deletePost() {
     showDialog(

@@ -47,7 +47,7 @@ dependencies:
   pinput: ^4.0.0
   google_sign_in: ^6.2.1
   flutter_facebook_auth: ^6.2.0
-#  cloud_firestore: ^4.15.8
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:

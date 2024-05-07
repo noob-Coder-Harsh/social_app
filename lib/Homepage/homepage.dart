@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> {
 
     final followingList =
     followingSnapshot.docs.map((doc) => doc.id).toList();
+    print('following list data $followingList');
     return followingList;
   }
 
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 } else if (!followingSnapshot.hasData ||
                     followingSnapshot.data!.isEmpty) {
-                  // If user is not following anyone
+                  print('followingsnapshot ka data');
                   return const SliverToBoxAdapter(
                     child: Center(
                       child: Text("Follow someone to see their posts on top",
@@ -79,6 +80,7 @@ class _HomePageState extends State<HomePage> {
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
+                        print('snapshot ka data $snapshot.data');
                         return SliverList(
                           delegate: SliverChildBuilderDelegate(
                                 (context, index) {
@@ -214,14 +216,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _refreshHomePage() async {
-    // Set _isLoading to true to indicate that data is being loaded
     setState(() {
       _isLoading = true;
     });
-
-    // Add some delay for demonstration purposes
     await Future.delayed(Duration(seconds: 2));
-
     setState(() {
       _isLoading = false;
     });

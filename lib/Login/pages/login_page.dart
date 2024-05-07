@@ -26,11 +26,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Future<User?> _signInWithGoogle() async {
     try {
-      // Trigger the Google Sign-In flow
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
       if (googleSignInAccount != null) {
-        // Obtain the GoogleSignInAuthentication object
         final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
 
