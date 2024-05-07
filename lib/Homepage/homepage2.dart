@@ -102,7 +102,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Widget _buildPostsStream(Stream<QuerySnapshot> stream) {
     return StreamBuilder(
       stream: stream,
@@ -117,20 +116,33 @@ class _HomePageState extends State<HomePage> {
           );
         } else {
           return FutureBuilder(
-            future: _fetchHiddenPosts(currentUser),
-            builder: (context, hiddenPostsSnapshot) {
-              if (hiddenPostsSnapshot.connectionState ==
-                  ConnectionState.waiting ||
-                  !hiddenPostsSnapshot.hasData ||
-                  (hiddenPostsSnapshot.data as Set<String>).isEmpty) {
-                // If hidden posts are not available or empty, show normal posts
-                print('normal posts shown');
-                return _buildNormalPosts(snapshot);
-
+            future: Future.wait([
+              _fetchHiddenPosts(currentUser),
+              _fetchSnoozedPosts(currentUser),
+            ]),
+            builder: (context, userDataSnapshot) {
+              if (userDataSnapshot.connectionState == ConnectionState.waiting) {
+                return _loadingIndicator();
+              } else if (userDataSnapshot.hasError) {
+                return SliverToBoxAdapter(
+                  child: Center(
+                    child: Text("Error: ${userDataSnapshot.error}"),
+                  ),
+                );
               } else {
-                print('filtered hide posts shown');
-                // If hidden posts are available, filter out hidden posts
-                return _buildFilteredPosts(snapshot, hiddenPostsSnapshot.data!);
+                final List<dynamic> userData = userDataSnapshot.data ?? [];
+                final hiddenPostsSnapshot = userData[0];
+                final snoozedPostsSnapshot = userData[1];
+                if (hiddenPostsSnapshot == null ||
+                    hiddenPostsSnapshot is Set<String> && hiddenPostsSnapshot.isEmpty) {
+                  // If hidden posts are not available or empty, show normal posts
+                  print('normal posts shown');
+                  return _buildNormalPosts(snapshot);
+                } else {
+                  print('filtered hide posts shown');
+                  // If hidden posts are available, filter out hidden posts
+                  return _buildFilteredPosts(snapshot, hiddenPostsSnapshot, snoozedPostsSnapshot);
+                }
               }
             },
           );
@@ -181,10 +193,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilteredPosts(
-      AsyncSnapshot snapshot, Set<String> hiddenPosts) {
+      AsyncSnapshot snapshot, Set<String> hiddenPosts, Set<String> snoozedPosts) {
     final allPosts = snapshot.data.docs;
     final visiblePosts = allPosts.where((post) {
-      return !hiddenPosts.contains(post.id);
+      return !hiddenPosts.contains(post.id) && !snoozedPosts.contains(post.id);
     }).toList();
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -225,6 +237,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 
   Future<Set<String>> _fetchHiddenPosts(User currentUser) async {
     final userDataSnapshot = await FirebaseFirestore.instance
