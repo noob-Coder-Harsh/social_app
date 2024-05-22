@@ -1,12 +1,29 @@
-# social_app
+# My Mobile App
 
-The social Media App
+## Social Media App | Flutter, Firebase, Dart 
+• Developed a social media application allowing users to post updates, follow friends, and like/comment on posts.
+• Implemented Firebase authentication for secure user login and registration.
+• Used Firebase Firestore and Firebase Storage to manage user data and posts.
 
-## Getting Started
+<table>
+  <tr>
+    <td><img src="https://github.com/noob-Coder-Harsh/social_app/blob/master/login.png" alt="Screen1" width="200"/></td>
+    <td><img src="https://github.com/noob-Coder-Harsh/social_app/blob/master/signup.png" alt="Screen2" width="200"/></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/noob-Coder-Harsh/social_app/blob/master/new%20posts.png" alt="Screen3" width="200"/></td>
+    <td><img src="https://github.com/noob-Coder-Harsh/social_app/blob/master/posts%20feed.png" alt="Screen4" width="200"/></td>
+    <td><img src="https://github.com/noob-Coder-Harsh/social_app/blob/master/profile.png" alt="Screen5" width="200"/></td>
+  </tr>
+</table>
 
-This project is a starting point for a Flutter application.
-![signup.png](signup.png){:height="50%" width="50%"}
-![login.png](login.png){:height="50%" width="50%"}
-![new posts.png](new%20posts.png){:height="50%" width="50%"}
-![posts feed.png](posts%20feed.png){:height="50%" width="50%"}
-![profile.png](profile.png){:height="50%" width="50%"}
+## Features
+
+- Firebase Firestore
+- Firebase Authentication
+- Firebase Storage
+- Google Signin
+- Phone Login
+
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+
