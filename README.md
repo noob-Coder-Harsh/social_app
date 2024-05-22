@@ -1,4 +1,4 @@
-# My Mobile App
+# The Social Media App
 
 ## Social Media App | Flutter, Firebase, Dart 
 • Developed a social media application allowing users to post updates, follow friends, and like/comment on posts.
