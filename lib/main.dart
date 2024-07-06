@@ -6,6 +6,8 @@ import 'package:social_app/Firebase/firebase_options.dart';
 import 'package:social_app/Login/loginpage_viewmodel.dart';
 import 'package:social_app/Registration/registration_viewmodel.dart';
 
+import 'Refactored/migration.dart';
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,11 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Login/loginpage_model.dart';
+import 'package:social_app/Refactored/auth_service.dart';
+import 'package:social_app/Refactored/samplescreen.dart';
 import 'package:social_app/navigation_bar.dart';
 
 class LoginPageUI extends StatefulWidget {
-  final LoginPageModel model = LoginPageModel();
   final Function() onTap;
-  LoginPageUI({super.key, required this.onTap});
+  const LoginPageUI({super.key, required this.onTap});
 
   @override
   State<LoginPageUI> createState() => _LoginPageUIState();
@@ -14,6 +16,20 @@ class LoginPageUI extends StatefulWidget {
 class _LoginPageUIState extends State<LoginPageUI> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    User? user = await _authService.signInWithGoogle();
+    if (user != null) {
+      // Navigate to the next screen or perform other actions
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>SampleScreen()));
+    } else {
+      // Handle sign-in failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in with Google')),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +125,6 @@ class _LoginPageUIState extends State<LoginPageUI> {
                               borderRadius: BorderRadius.circular(10)
                           ),
                           child: TextButton(onPressed: (){
-                            widget.model.signIn(_emailController.text,_passwordController.text);
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const CustomNavigationBar()));
                           },
                             child: const Text('Login',style: TextStyle(color: Colors.white,
@@ -120,13 +135,13 @@ class _LoginPageUIState extends State<LoginPageUI> {
                         OutlinedButton(
                           onPressed: (){},
                           style: ButtonStyle(
-                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0), // Border radius
                                 ),
                               ),
-                              side: MaterialStateProperty.all(BorderSide(color: Colors.grey.shade900,width: 1),),
-                              foregroundColor: MaterialStateProperty.all(Colors.grey.shade900)
+                              side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade900,width: 1),),
+                              foregroundColor: WidgetStateProperty.all(Colors.grey.shade900)
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -143,16 +158,16 @@ class _LoginPageUIState extends State<LoginPageUI> {
                         const SizedBox(height: 10,),
                         OutlinedButton(
                           onPressed: (){
-                            widget.model.signInWithGoogle();
+                            _signInWithGoogle(context);
                           },
                           style: ButtonStyle(
-                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0), // Border radius
                                 ),
                               ),
-                              side: MaterialStateProperty.all(BorderSide(color: Colors.grey.shade900,width: 1),),
-                              foregroundColor: MaterialStateProperty.all(Colors.grey.shade900)
+                              side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade900,width: 1),),
+                              foregroundColor: WidgetStateProperty.all(Colors.grey.shade900)
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),

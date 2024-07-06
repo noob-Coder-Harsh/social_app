@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_app/Login/pages/register_page.dart';
+import '../../Refactored/loginpage_ui.dart';
 import 'login_page.dart';
 
 class LoginOrRegisterPage extends StatefulWidget{
@@ -20,7 +21,7 @@ class _LoginOrRegisterPageState extends State<LoginOrRegisterPage>{
   @override
   Widget build(BuildContext context){
     if(showLoginPage){
-     return LoginPage(onTap: togglePages,);
+     return LoginPageUI(onTap: togglePages,);
     }else{
      return RegisteredPage(onTap: togglePages);
     }
