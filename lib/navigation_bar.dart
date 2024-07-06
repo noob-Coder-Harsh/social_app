@@ -4,7 +4,9 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:social_app/Homepage/New%20Post/new_post.dart';
 import 'package:social_app/Homepage/homepage2.dart';
 import 'package:social_app/Profile/profile_page.dart';
+import 'package:social_app/Profile/profile_page2.dart';
 
+import 'Homepage/New Post/add_post.dart';
 import 'custom_appbar.dart';
 
 class CustomNavigationBar extends StatefulWidget{
@@ -59,8 +61,8 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
         },
         children: [
           HomePage(),
-          NewPostsBottom(),
-          ProfilePage()
+          NewPostsUI(),
+          ProfilePageUI()
         ],
       ),
     );
