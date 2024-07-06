@@ -1,18 +1,18 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<User?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
       if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
 
         // Create a new credential
         final OAuthCredential credential = GoogleAuthProvider.credential(
@@ -50,11 +50,10 @@ class AuthService {
       User? user = authResult.user;
       await _storeUserSignUpData(user);
     } catch (error) {
-      print("Email Sign-Up Error: $error");
+      throw ("Email Sign-Up Error: $error");
       // Handle error as needed
     }
   }
-
 
   Future<void> _storeUserSignUpData(User? user) async {
     try {
@@ -78,8 +77,24 @@ class AuthService {
       // Store user data in Firestore
       await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(userData);
     } catch (error) {
-      print("Error storing user signup data: $error");
+      throw ("Error storing user signup data: $error");
       // Handle error as needed
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserData() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          return userDoc.data() as Map<String, dynamic>?;
+        }
+      }
+      return null;
+    } catch (e) {
+      print("Error fetching user data: $e");
+      return null;
     }
   }
 }
