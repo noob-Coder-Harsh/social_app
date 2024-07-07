@@ -1,55 +1,155 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:social_app/Refactored/auth_service.dart';
-import 'package:social_app/Refactored/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:social_app/Homepage/refactored/service.dart';
 
-class SampleScreen extends StatefulWidget {
-  const SampleScreen({super.key});
+import '../Homepage/refactored/model.dart';
+import 'auth_service.dart';
+
+
+class Homepage2 extends StatefulWidget {
+  const Homepage2({super.key});
 
   @override
-  State<SampleScreen> createState() => _SampleScreenState();
+  State<Homepage2> createState() => _Homepage2State();
 }
 
-class _SampleScreenState extends State<SampleScreen> {
-  final AuthService _authService = AuthService();
-  Map<String,dynamic>? _userData;
-
-  Future<void> _fetchUserData() async {
-    Map<String, dynamic>? userData = await _authService.getUserData();
-    setState(() {
-      _userData = userData;
-    });
-  }
+class _Homepage2State extends State<Homepage2> {
+  final User currentUser = FirebaseAuth.instance.currentUser!;
+  late PostsService postService;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    postService = PostsService(currentUser);
     _fetchUserData();
   }
+
+  Map<String, dynamic>? _userData;
+  final AuthService _authService = AuthService();
+
+  Future<void> _fetchUserData() async {
+    _userData = await _authService.getUserData();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: _userData != null ? Column(
-        children: [
-          SizedBox(height: 20,),
-          Text('user details'),
-          if(_userData!['username'] != null)
-          Text('user name - ${_userData?['username']}'),
-          if(_userData!['email'] != null)
-          Text('user email - ${_userData?['email']}'),
-          if(_userData!['phone'] != null)
-          Text('user phone - ${_userData!['phone']}'),
-          Text('user bio - ${_userData?['bio']}'),
-          _userData!['profile_picture'] == null?
-          Text('no profile url') : Text(_userData!['profile_picture']),
-          Text('followers list - ${_userData!['followers'].length}'),
-          Text('following list  - ${_userData!['following'].length}'),
-          Text('posts count  - ${_userData!['posts'].length}'),
-          Text('post ids list')
+      backgroundColor: Colors.grey.shade300,
+      appBar: AppBar(
+        backgroundColor: Colors.grey.shade300,
+        title: Image.asset(
+          'assets/title.png',
+          width: 150,
+          color: Colors.grey.shade900,
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              icon: const Icon(Icons.logout))
         ],
-      ) : Utils.circularProgressIndicator(),
+      ),
+      body: FutureBuilder<List<UserPost>>(
+        future: postService.fetchUserPosts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No posts found.'));
+          } else {
+            final posts = snapshot.data!;
+            return SingleChildScrollView(
+              child: Column(
+                children: posts.map((post) => buildPostCard(post)).toList(),
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Widget buildPostCard(UserPost post) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5),
+      width: double.infinity,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8)),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: _userData!['profile_picture'] != null
+                      ? Image.network(
+                    _userData!['profile_picture'],
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.contain,
+                  )
+                      : Icon(
+                    Icons.person,
+                    size: 75,
+                  ),
+                ),
+                const SizedBox(width: 5,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_userData!['username'], style: const TextStyle(fontWeight: FontWeight.bold)), // Display user ID
+                    Text(
+                      '${post.timestamp.toDate().toLocal()}'.split(' ')[0],
+                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                ElevatedButton(
+                    style: ButtonStyle(
+                        foregroundColor: WidgetStateProperty.all(Colors.white),
+                        backgroundColor: WidgetStateProperty.all(Colors.grey.shade900)
+                    ),
+                    onPressed: () {}, child: const Text('Follow')),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz))
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(post.message),
+            ),
+          ),
+          if (post.imageUrl != null)
+            Image.network(post.imageUrl!), // Display the image if it exists
+          if (post.videoUrl != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Video URL: ${post.videoUrl}"), // Display the video URL if it exists
+            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                const Icon(Icons.favorite, color: Colors.red),
+                Text('${post.likes.length} likes', style: const TextStyle(fontWeight: FontWeight.bold)),
+                const Spacer(),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.favorite_outline)),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.chat_bubble_outline))
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

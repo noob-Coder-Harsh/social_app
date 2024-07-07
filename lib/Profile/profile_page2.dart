@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:social_app/Profile/post_grid.dart';
 import 'package:social_app/Refactored/auth_service.dart';
-import 'package:social_app/Refactored/utils.dart';
+import 'package:social_app/Utility/utils.dart';
 
 class ProfilePageUI extends StatefulWidget {
   const ProfilePageUI({Key? key}) : super(key: key);

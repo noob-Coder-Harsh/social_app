@@ -22,7 +22,7 @@ class _LoginPageUIState extends State<LoginPageUI> {
     User? user = await _authService.signInWithGoogle();
     if (user != null) {
       // Navigate to the next screen or perform other actions
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>SampleScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>Homepage2()));
     } else {
       // Handle sign-in failure
       ScaffoldMessenger.of(context).showSnackBar(

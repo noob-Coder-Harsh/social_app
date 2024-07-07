@@ -1,12 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:social_app/Firebase/auth.dart';
 import 'package:social_app/Firebase/firebase_options.dart';
-import 'package:social_app/Login/loginpage_viewmodel.dart';
-import 'package:social_app/Registration/registration_viewmodel.dart';
-
-import 'Refactored/migration.dart';
 
 
 void main() async{
