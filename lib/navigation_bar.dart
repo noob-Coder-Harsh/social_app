@@ -1,55 +1,52 @@
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:social_app/Homepage/New%20Post/new_post.dart';
-import 'package:social_app/Homepage/homepage2.dart';
-import 'package:social_app/Profile/profile_page2.dart';
 
-import 'custom_appbar.dart';
+import 'New Post/new_post.dart';
+import 'Profile/profile_page2.dart';
+import 'Refactored/samplescreen.dart';
 
-class CustomNavigationBar extends StatefulWidget{
-  const CustomNavigationBar({super.key});
+
+class NavigationBarUI extends StatefulWidget {
+  const NavigationBarUI({super.key});
 
   @override
-  State<CustomNavigationBar> createState() => _CustomNavigationBarState();
+  State<NavigationBarUI> createState() => _NavigationBarUIState();
 }
 
-class _CustomNavigationBarState extends State<CustomNavigationBar> {
+class _NavigationBarUIState extends State<NavigationBarUI> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Container(
-        color: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 20),
-          child: GNav(
-            padding: EdgeInsets.all(16),
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            backgroundColor: Colors.black,
-            color:Colors.white,
-            activeColor: Colors.white,
-            tabBackgroundColor: Colors.brown.shade500,
-            gap: 8,
-            tabs: [
-              GButton(icon: Icons.home,text: 'Home',),
-              GButton(icon: Icons.add,text: 'New Post',),
-              GButton(icon: Icons.person,text: 'Profile',),
-            ],
-            selectedIndex: _selectedIndex,
-            onTabChange: (index) {
-              setState(() {
-                _selectedIndex = index;
-                _pageController.jumpToPage(index);
-              });
-            },
-          ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GNav(
+          padding: const EdgeInsets.all(8),
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          color:Colors.grey.shade900,
+          activeColor: Colors.white,
+          tabBackgroundColor: Colors.grey.shade900,
+          gap: 8,
+          tabs: const [
+            GButton(icon: Icons.home,text: 'Home',),
+            GButton(icon: Icons.add,text: 'New Post',),
+            GButton(icon: Icons.person,text: 'Profile',),
+          ],
+          selectedIndex: _selectedIndex,
+          onTabChange: (index) {
+            setState(() {
+              _selectedIndex = index;
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 300), // Adjust duration as needed
+                curve: Curves.easeInOut, // Adjust curve as needed
+              );
+            });
+          },
         ),
       ),
-
-      appBar: CustomAppBar(signOut: signOut),
-
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -57,15 +54,12 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
             _selectedIndex = index;
           });
         },
-        children: [
-          HomePage(),
+        children: const [
+          Homepage2(),
           NewPostsBottom(),
           ProfilePageUI()
         ],
       ),
     );
-  }
-  void signOut(){
-    FirebaseAuth.instance.signOut();
   }
 }

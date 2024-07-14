@@ -16,4 +16,14 @@ class PostsService {
 
     return querySnapshot.docs.map((doc) => UserPost.fromDocument(doc)).toList();
   }
+
+  Future<List<UserPost>> fetchUserProfilePosts() async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('UserPosts')
+        .where('userId', isEqualTo: currentUser.uid) // Replace 'userId' with your actual field name
+        .orderBy('TimeStamp', descending: true)
+        .get();
+
+    return querySnapshot.docs.map((doc) => UserPost.fromDocument(doc)).toList();
+  }
 }

@@ -136,7 +136,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   MyButton(function: () async {
                     User? user = await _signInWithGoogle();
                     if (user != null) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>const CustomNavigationBar()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>const NavigationBarUI()));
                     } else {
                       displayMessage('Sign in failed. Please try again.');
                     }

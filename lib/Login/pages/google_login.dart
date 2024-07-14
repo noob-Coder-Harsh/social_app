@@ -46,7 +46,7 @@ signInWithGoogle(BuildContext context) async {
       context,
       MaterialPageRoute(
         builder: (context) =>
-        const CustomNavigationBar(), // Replace NavigationScreen() with your desired screen
+        const NavigationBarUI(), // Replace NavigationScreen() with your desired screen
       ),
     );
   } catch (error) {

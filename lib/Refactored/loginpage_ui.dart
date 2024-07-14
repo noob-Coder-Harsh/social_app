@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:social_app/Login/loginpage_model.dart';
 import 'package:social_app/Refactored/auth_service.dart';
 import 'package:social_app/Refactored/samplescreen.dart';
 import 'package:social_app/navigation_bar.dart';
@@ -17,6 +16,7 @@ class _LoginPageUIState extends State<LoginPageUI> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     User? user = await _authService.signInWithGoogle();
@@ -28,6 +28,23 @@ class _LoginPageUIState extends State<LoginPageUI> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to sign in with Google')),
       );
+    }
+  }
+
+  Future<void> signIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text);
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+    }finally{
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
   @override
@@ -125,7 +142,7 @@ class _LoginPageUIState extends State<LoginPageUI> {
                               borderRadius: BorderRadius.circular(10)
                           ),
                           child: TextButton(onPressed: (){
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const CustomNavigationBar()));
+                            signIn();
                           },
                             child: const Text('Login',style: TextStyle(color: Colors.white,
                                 fontSize: 18, fontWeight: FontWeight.bold),),),

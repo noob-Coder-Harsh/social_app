@@ -55,6 +55,16 @@ class AuthService {
     }
   }
 
+  Future<void> signIn(String email, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password);
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+    }
+  }
+
   Future<void> _storeUserSignUpData(User? user) async {
     try {
       // Determine initial data based on signup method (Google, email, phone, etc.)

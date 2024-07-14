@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,8 +7,6 @@ import 'package:social_app/Homepage/helper_methods.dart';
 import 'package:social_app/Homepage/Post/comment.dart';
 import 'package:social_app/Homepage/Post/comment_button.dart';
 import 'package:social_app/Homepage/Post/like_button.dart';
-
-import '../New Post/new_post.dart';
 import 'firebase_videoplayer.dart';
 
 class FeedPost extends StatefulWidget {

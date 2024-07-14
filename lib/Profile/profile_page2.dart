@@ -5,6 +5,7 @@ import 'package:social_app/Profile/post_grid.dart';
 import 'package:social_app/Refactored/auth_service.dart';
 import 'package:social_app/Utility/utils.dart';
 
+//refactored
 class ProfilePageUI extends StatefulWidget {
   const ProfilePageUI({Key? key}) : super(key: key);
 
@@ -14,7 +15,8 @@ class ProfilePageUI extends StatefulWidget {
 
 class _ProfilePageUIState extends State<ProfilePageUI> {
   final AuthService _authService = AuthService();
-  Map<String, dynamic>? _userData;
+final User? currentUser = FirebaseAuth.instance.currentUser;
+Map<String, dynamic>? _userData;
 
   Future<void> _fetchUserData() async {
     _userData = await _authService.getUserData();
@@ -37,7 +39,7 @@ class _ProfilePageUIState extends State<ProfilePageUI> {
         actions: [
           IconButton(
             onPressed: () {
-              // Implement logout functionality
+              FirebaseAuth.instance.signOut();
             },
             icon: const Icon(Icons.logout),
           ),
@@ -160,7 +162,7 @@ class _ProfilePageUIState extends State<ProfilePageUI> {
                   child: SingleChildScrollView(
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height,
-                      child: const ImageGrid(),
+                      child: ImageGrid(),
                     ),
                   ),
                 ),

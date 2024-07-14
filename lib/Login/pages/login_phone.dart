@@ -93,7 +93,7 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await FirebaseAuth.instance.signInWithCredential(credential);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CustomNavigationBar()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NavigationBarUI()));
         },
         verificationFailed: (FirebaseAuthException e) {
           displayMessage('${e.message}');
@@ -118,7 +118,7 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: _verificationId, smsCode: otp);
       await FirebaseAuth.instance.signInWithCredential(credential);
       Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const CustomNavigationBar()));
+          MaterialPageRoute(builder: (context) => const NavigationBarUI()));
     } catch (e) {
       displayMessage('Error verifying OTP: $e');
     }

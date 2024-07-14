@@ -39,8 +39,12 @@ class FirebaseService {
   // Fetch posts by user_id
   Future<List<Map<String, dynamic>>> getUserPosts(String userId) async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('Posts').where('user_id', isEqualTo: userId).get();
-      return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      QuerySnapshot snapshot = await _firestore.collection('UserPosts').where('user_id', isEqualTo: userId).get();
+      return snapshot.docs.map((doc) {
+        var data = doc.data() as Map<String, dynamic>;
+        data['post_id'] = doc.id;  // Adding post ID to the map
+        return data;
+      }).toList();
     } catch (e) {
       print(e);
       return [];

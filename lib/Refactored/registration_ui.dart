@@ -121,7 +121,7 @@ class _RegisterPageUIState extends State<RegisterPageUI> {
                           ),
                           child: TextButton(onPressed: (){
                                 widget.model.signUp(_emailController.text,_passwordController.text,_confirmPasswordController.text);
-                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const CustomNavigationBar()));},
+                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const NavigationBarUI()));},
                                 child: const Text('Register',style: TextStyle(color: Colors.white,
                                 fontSize: 18, fontWeight: FontWeight.bold),),),
                         ),

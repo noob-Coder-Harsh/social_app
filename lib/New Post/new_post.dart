@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:social_app/Homepage/New%20Post/video_player.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
+import 'package:social_app/New%20Post/video_player.dart';
 
 import '../../Utility/utils.dart';
 import 'post_service.dart';
