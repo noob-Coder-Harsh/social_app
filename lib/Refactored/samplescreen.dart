@@ -14,22 +14,12 @@
   }
 
   class _Homepage2State extends State<Homepage2> {
-    final User currentUser = FirebaseAuth.instance.currentUser!;
     late PostsService postService;
 
     @override
     void initState() {
       super.initState();
-      postService = PostsService(currentUser);
-      _fetchUserData();
-    }
-
-    Map<String, dynamic>? _userData;
-    final AuthService _authService = AuthService();
-
-    Future<void> _fetchUserData() async {
-      _userData = await _authService.getUserData();
-      setState(() {});
+      postService = PostsService(); // Initialize without the current user
     }
 
     @override
@@ -52,7 +42,7 @@
           ],
         ),
         body: FutureBuilder<List<UserPost>>(
-          future: postService.fetchUserPosts(),
+          future: postService.fetchUserPosts(), // Fetch all posts
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -88,14 +78,14 @@
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: _userData!['profile_picture'] != null
+                    child: post.imageUrl != null
                         ? Image.network(
-                      _userData!['profile_picture'],
+                      post.imageUrl!,
                       width: 20,
                       height: 20,
                       fit: BoxFit.contain,
                     )
-                        : Icon(
+                        : const Icon(
                       Icons.person,
                       size: 75,
                     ),
@@ -104,7 +94,7 @@
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_userData!['username'], style: const TextStyle(fontWeight: FontWeight.bold)), // Display user ID
+                      Text(post.userId, style: const TextStyle(fontWeight: FontWeight.bold)), // Display user ID
                       Text(
                         '${post.timestamp.toDate().toLocal()}'.split(' ')[0],
                         style: const TextStyle(fontSize: 10, color: Colors.grey),

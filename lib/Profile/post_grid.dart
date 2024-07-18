@@ -21,7 +21,7 @@ class _ImageGridState extends State<ImageGrid> {
   @override
   void initState() {
     super.initState();
-    postService = PostsService(currentUser);
+    postService = PostsService();
     _fetchPosts();
   }
 

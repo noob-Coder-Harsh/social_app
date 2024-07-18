@@ -4,9 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'model.dart';
 
 class PostsService {
-  final User currentUser;
-
-  PostsService(this.currentUser);
 
   Future<List<UserPost>> fetchUserPosts() async {
     final querySnapshot = await FirebaseFirestore.instance
@@ -17,7 +14,7 @@ class PostsService {
     return querySnapshot.docs.map((doc) => UserPost.fromDocument(doc)).toList();
   }
 
-  Future<List<UserPost>> fetchUserProfilePosts() async {
+  Future<List<UserPost>> fetchUserProfilePosts(User currentUser) async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('UserPosts')
         .where('userId', isEqualTo: currentUser.uid) // Replace 'userId' with your actual field name
