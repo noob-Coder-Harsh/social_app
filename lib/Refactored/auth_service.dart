@@ -50,7 +50,7 @@ class AuthService {
       User? user = authResult.user;
       await _storeUserSignUpData(user);
     } catch (error) {
-      throw ("Email Sign-Up Error: $error");
+      print ("Email Sign-Up Error: $error");
       // Handle error as needed
     }
   }

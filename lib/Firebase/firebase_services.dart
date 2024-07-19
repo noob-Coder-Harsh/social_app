@@ -17,7 +17,7 @@ class FirebaseService {
   // Fetch a single user by user_id
   Future<Map<String, dynamic>?> getUser(String userId) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('Users').doc(userId).get();
+      DocumentSnapshot doc = await _firestore.collection('users').doc(userId).get();
       return doc.exists ? doc.data() as Map<String, dynamic> : null;
     } catch (e) {
       print(e);

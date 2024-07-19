@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Login/widgets/text_feild.dart';
+import 'package:social_app/navigation_bar.dart';
+import '../../Refactored/auth_service.dart';
 import '../widgets/button.dart';
 
 class RegisteredPage extends StatefulWidget {
@@ -18,8 +20,9 @@ class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProvid
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordConfirmController = TextEditingController();
   bool _isLoading = false;
+  final AuthService _authService = AuthService();
 
-  void signUp() async {
+  Future<void> signUpWithEmail() async {
     setState(() {
       _isLoading = true;
     });
@@ -33,20 +36,13 @@ class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProvid
     }
 
     try {
-     UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
+      await _authService.signUpWithEmail(
+        _emailController.text,
+        _passwordController.text,
       );
+      displayMessage('Registration successful');
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>NavigationBarUI()));
 
-     FirebaseFirestore. instance
-         .collection("Users")
-         .doc(userCredential.user !. email)
-         .set({
-       'username': _emailController.text.split('@') [0],
-       'bio': 'Empty bio .. ',
-       'contact': 0,
-       'profile_img':null
-});
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         displayMessage('The email address is badly formatted');
@@ -122,7 +118,7 @@ class _RegisteredPageState extends State<RegisteredPage> with SingleTickerProvid
                   const SizedBox(height: 10),
                   _isLoading
                       ?const CircularProgressIndicator():
-                  MyButton(text: 'SignUp', function: signUp),
+                  MyButton(text: 'SignUp', function: signUpWithEmail),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
