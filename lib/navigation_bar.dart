@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:social_app/Homepage/homepage.dart';
 
 import 'New Post/new_post.dart';
-import 'Profile/profile_page2.dart';
-import 'Refactored/samplescreen.dart';
+import 'Profile/profile_page.dart';
 
 
 class NavigationBarUI extends StatefulWidget {
@@ -54,10 +54,10 @@ class _NavigationBarUIState extends State<NavigationBarUI> {
             _selectedIndex = index;
           });
         },
-        children: const [
-          Homepage2(),
+        children:  [
+          HomeFeed(),
           NewPostsBottom(),
-          ProfilePageUI()
+          ProfilePage()
         ],
       ),
     );

@@ -38,7 +38,7 @@ class _EditPostPageState extends State<EditPostPage> {
   Future<void> fetchPostContent() async {
     try {
       final DocumentSnapshot postSnapshot = await FirebaseFirestore.instance
-          .collection('User Posts')
+          .collection('UserPosts')
           .doc(widget.postId)
           .get();
 
@@ -64,7 +64,7 @@ class _EditPostPageState extends State<EditPostPage> {
   Future<void> updatePost(String newPostText) async {
     try {
       await FirebaseFirestore.instance
-          .collection('User Posts')
+          .collection('UserPosts')
           .doc(widget.postId)
           .update({'Message': newPostText, 'EditedTime': Timestamp.now()});
       Navigator.pop(context);

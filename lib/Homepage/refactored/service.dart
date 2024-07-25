@@ -1,18 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'model.dart';
+import 'post_model.dart';
 
 class PostsService {
 
-  Future<List<UserPost>> fetchUserPosts() async {
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('UserPosts')
-        .orderBy('TimeStamp', descending: true)
-        .get();
-
-    return querySnapshot.docs.map((doc) => UserPost.fromDocument(doc)).toList();
-  }
 
   Future<List<UserPost>> fetchUserProfilePosts(User currentUser) async {
     final querySnapshot = await FirebaseFirestore.instance

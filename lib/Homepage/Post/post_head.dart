@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:social_app/Homepage/Post/edit_post.dart';
 
 
@@ -25,7 +25,7 @@ class PostHead extends StatefulWidget{
 }
 
 class _PostHeadState extends State<PostHead> {
-  bool isFollowing = false; // Add a state variable to track follow status
+  bool isFollowing = false;
 
   @override
   void initState() {
@@ -36,7 +36,6 @@ class _PostHeadState extends State<PostHead> {
 
   @override
   void dispose() {
-    // Cancel any ongoing asynchronous operations here
     super.dispose();
   }
 

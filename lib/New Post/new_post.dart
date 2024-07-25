@@ -30,90 +30,99 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: const Border(top: BorderSide(width: 1)),
-          color: Colors.grey[900],
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: MyTextField(
-                        controller: textController,
-                        hintText: 'write something to post',
-                        obscureText: false,
-                        type: TextInputType.text,
-                      ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: const Border(top: BorderSide(width: 1)),
+        color: Colors.grey[900],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: MyTextField(
+                      controller: textController,
+                      hintText: 'write something to post',
+                      obscureText: false,
+                      type: TextInputType.text,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      postMessage();
-                    },
-                    icon: Icon(
-                      Icons.arrow_circle_up,
-                      color: Colors.grey.shade300,
+                ),
+                IconButton(
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    postMessage();
+                  },
+                  icon: Icon(
+                    Icons.arrow_circle_up,
+                    color: Colors.grey.shade300,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 10),
+            _imageFile != null
+                ? Container(
+                    constraints: const BoxConstraints(
+                      maxHeight: 500, // Adjust as needed
                     ),
+                    child: Image.file(_imageFile!),
                   )
-                ],
-              ),
-              const SizedBox(height: 10),
-              _imageFile != null
-                  ? Image.file(_imageFile!)
-                  : _videoFile != null
-                      ? VideoPlayerWidget(videoFile: _videoFile!)
-                      : Container(),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      _imageFile = await Utils.pickImage();
-                      setState(() {
-                        _videoFile = null; // Clear video if an image is picked.
-                      });
-                    },
-                    child: const Text('Add Image'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      _videoFile = await Utils.pickVideo();
-                      setState(() {
-                        _imageFile = null; // Clear image if a video is picked.
-                      });
-                    },
-                    child: const Text('Add Video'),
-                  ),
-                  Column(
-                    children: [
-                      const Text(
-                        'Public',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Switch(
-                        value: _isPublic,
-                        onChanged: (value) {
-                          setState(() {
-                            _isPublic = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                : _videoFile != null
+                    ? Container(
+                        constraints: const BoxConstraints(
+                          maxHeight: 500, // Adjust as needed
+                        ),
+                        child: VideoPlayerWidget(videoFile: _videoFile!),
+                      )
+                    : Container(),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    _imageFile = await Utils.pickImage();
+                    setState(() {
+                      _videoFile = null; // Clear video if an image is picked.
+                    });
+                  },
+                  child: const Text('Add Image'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    _videoFile = await Utils.pickVideo();
+                    setState(() {
+                      _imageFile = null; // Clear image if a video is picked.
+                    });
+                  },
+                  child: const Text('Add Video'),
+                ),
+                Column(
+                  children: [
+                    const Text(
+                      'Public',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Switch(
+                      value: _isPublic,
+                      onChanged: (value) {
+                        setState(() {
+                          _isPublic = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -122,7 +131,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
   void postMessage() async {
     if (textController.text.isEmpty && _imageFile == null && _videoFile == null) {
       _postService.showErrorDialog(context, 'Error', 'Please write something, add an image, or add a video.');
-      return; // Stop further processing.
+      return;
     }
 
     try {
@@ -138,10 +147,12 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
         videoUrl = await _postService.uploadFileToStorage(_videoFile!);
       }
 
+      if (!mounted) return;
       _postService.hideProgressDialog(context);
 
       await _postService.postToFirestore(imageUrl, videoUrl, textController.text, _isPublic);
 
+      if (!mounted) return;
       setState(() {
         textController.clear();
         _imageFile = null;
@@ -149,8 +160,10 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
         _isPublic = true;
       });
     } catch (e) {
-      _postService.hideProgressDialog(context);
-      _postService.showErrorDialog(context, 'Error', 'An error occurred while uploading file. Please try again later.');
+      if (mounted) {
+        _postService.hideProgressDialog(context);
+        _postService.showErrorDialog(context, 'Error', 'An error occurred while uploading file. Please try again later.');
+      }
     }
   }
 }

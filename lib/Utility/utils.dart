@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -10,7 +11,15 @@ class Utils {
 
   static Widget circularProgressIndicator() {
     return Center(
-      child: CircularProgressIndicator(color: Colors.grey.shade700,),
+      child: CircularProgressIndicator(color: Colors.grey.shade700,
+        semanticsLabel: 'Please wait...',),
+    );
+  }
+
+  static Widget linearProgressIndicator() {
+    return Center(
+      child: LinearProgressIndicator(color: Colors.grey.shade700,
+        semanticsLabel: 'Please wait...',),
     );
   }
 
@@ -30,5 +39,14 @@ class Utils {
       return File(pickedFile.path);
     }
     return null;
+  }
+
+  static String formatDate(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate();
+    String year = dateTime.year.toString();
+    String month = dateTime.month.toString();
+    String day = dateTime.day.toString();
+    String formattedData = '$day/$month/$year';
+    return formattedData;
   }
 }

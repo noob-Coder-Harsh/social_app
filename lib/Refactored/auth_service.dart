@@ -5,7 +5,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<User?> signInWithGoogle() async {
     try {
@@ -92,19 +91,4 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>?> getUserData() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          return userDoc.data() as Map<String, dynamic>?;
-        }
-      }
-      return null;
-    } catch (e) {
-      print("Error fetching user data: $e");
-      return null;
-    }
-  }
 }

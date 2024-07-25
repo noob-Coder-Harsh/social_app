@@ -2,11 +2,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:social_app/Homepage/Post/comment.dart';
 import 'package:social_app/Homepage/Post/post_head.dart';
 import 'package:social_app/Homepage/helper_methods.dart';
-import 'package:social_app/Homepage/Post/comment.dart';
-import 'package:social_app/Homepage/Post/comment_button.dart';
-import 'package:social_app/Homepage/Post/like_button.dart';
+
 import 'firebase_videoplayer.dart';
 
 class FeedPost extends StatefulWidget {
@@ -93,18 +92,7 @@ class _FeedPostState extends State<FeedPost> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
-            child: Row(
-              children: [
-                LikeButton(onTap: toggleLikes, isLiked: isLiked),
-                const SizedBox(
-                  width: 10,
-                ),
-                CommentButton(onTap: showCommentDialog),
-              ],
-            ),
-          ),
+          //comment
           Padding(
             padding: const EdgeInsets.only(left: 18.0,right: 18,top: 8),
             child: Text("${widget.likes.length} Likes",style: TextStyle(fontWeight: FontWeight.bold),),

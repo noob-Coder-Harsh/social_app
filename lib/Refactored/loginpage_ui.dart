@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Refactored/auth_service.dart';
-import 'package:social_app/Refactored/samplescreen.dart';
-import 'package:social_app/navigation_bar.dart';
+
+import '../Homepage/homepage.dart';
 
 class LoginPageUI extends StatefulWidget {
   final Function() onTap;
@@ -19,16 +19,21 @@ class _LoginPageUIState extends State<LoginPageUI> {
   bool _isLoading = false;
 
   Future<void> _signInWithGoogle(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
     User? user = await _authService.signInWithGoogle();
     if (user != null) {
-      // Navigate to the next screen or perform other actions
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Homepage2()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeFeed()));
     } else {
       // Handle sign-in failure
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to sign in with Google')),
       );
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> signIn() async {

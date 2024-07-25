@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserPost {
+  final String id;
   final String userId;
   final String message;
   final String? imageUrl;
@@ -11,6 +12,7 @@ class UserPost {
   final bool isPublic;
 
   UserPost({
+    required this.id,
     required this.userId,
     required this.message,
     this.imageUrl,
@@ -23,6 +25,7 @@ class UserPost {
 
   factory UserPost.fromDocument(DocumentSnapshot doc) {
     return UserPost(
+      id: doc.id,
       userId: doc['UserId'],
       message: doc['Message'],
       imageUrl: doc['Image'],
