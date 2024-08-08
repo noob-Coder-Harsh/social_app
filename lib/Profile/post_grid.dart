@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Firebase/firebase_services.dart';
 import 'package:social_app/Homepage/refactored/post_model.dart';
@@ -9,14 +8,14 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import '../Homepage/Post/firebase_videoplayer.dart';
 
 class ImageGrid extends StatefulWidget {
-  ImageGrid({super.key});
+ final String userId;
+  const ImageGrid({super.key,required this.userId});
 
   @override
   State<ImageGrid> createState() => _ImageGridState();
 }
 
 class _ImageGridState extends State<ImageGrid> {
-  final User currentUser = FirebaseAuth.instance.currentUser!;
   late FirebaseService firebaseService;
   late List<UserPost> posts = [];
 
@@ -54,7 +53,7 @@ class _ImageGridState extends State<ImageGrid> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No posts found.'));
         } else {
-          final posts = snapshot.data!.where((post) => post.userId == currentUser.uid).toList();
+          final posts = snapshot.data!.where((post) => post.userId == widget.userId).toList();
 
           if (posts.isEmpty) {
             return const Center(child: Text('No posts found for current user.'));

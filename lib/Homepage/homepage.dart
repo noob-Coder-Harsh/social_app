@@ -6,6 +6,7 @@ import '../Firebase/firebase_services.dart';
 import '../Homepage/Post/comment.dart';
 import '../Homepage/Post/firebase_videoplayer.dart';
 import '../Homepage/Post/like_button.dart';
+import '../Profile/other_profile_page.dart';
 
 class HomeFeed extends StatefulWidget {
   const HomeFeed({super.key});
@@ -102,47 +103,70 @@ class PostCard extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: userData['profile_picture'] != null
-                            ? Image.network(
-                                userData['profile_picture'],
-                                width: 25,
-                                height: 25,
-                                fit: BoxFit.cover,
-                              )
-                            : const Icon(
-                                Icons.person,
-                                size: 50,
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OtherProfilePage(userId:post.userId),
                               ),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(userData['username'] ?? 'Unknown User', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(
-                            '${post.timestamp.toDate().toLocal()}'.split(' ')[0],
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: userData['profile_picture'] != null
+                                ? Image.network(
+                              userData['profile_picture'],
+                              width: 25,
+                              height: 25,
+                              fit: BoxFit.cover,
+                            )
+                                : const Icon(
+                              Icons.person,
+                              size: 50,
+                            ),
                           ),
-                        ],
-                      ),
-                      const Spacer(),
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          foregroundColor: WidgetStateProperty.all(Colors.white),
-                          backgroundColor: WidgetStateProperty.all(Colors.grey.shade900),
                         ),
-                        onPressed: () {},
-                        child: const Text('Follow'),
-                      ),
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz))
-                    ],
-                  ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OtherProfilePage(userId: post.userId),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userData['username'] ?? 'Unknown User',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '${post.timestamp.toDate().toLocal()}'.split(' ')[0],
+                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            foregroundColor: WidgetStateProperty.all(Colors.white),
+                            backgroundColor: WidgetStateProperty.all(Colors.grey.shade900),
+                          ),
+                          onPressed: () {},
+                          child: const Text('Follow'),
+                        ),
+                        IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz)),
+                      ],
+                    )
                 ),
                 Align(
                   alignment: Alignment.centerLeft,

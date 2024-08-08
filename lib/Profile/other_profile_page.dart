@@ -4,20 +4,20 @@ import 'package:social_app/Firebase/firebase_services.dart';
 import 'package:social_app/Profile/post_grid.dart';
 import 'package:social_app/Utility/utils.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class OtherProfilePage extends StatefulWidget {
+  final String userId;
+  const OtherProfilePage({Key? key, required this.userId}) : super(key: key);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<OtherProfilePage> createState() => _OtherProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _OtherProfilePageState extends State<OtherProfilePage> {
   final FirebaseService firebaseService = FirebaseService();
-  final User? currentUser = FirebaseAuth.instance.currentUser;
   Map<String, dynamic>? _userData;
 
   Future<void> _fetchUserData() async {
-    _userData = await firebaseService.getUserData();
+    _userData = await firebaseService.getUserDataById(widget.userId);
     setState(() {});
   }
 
@@ -74,12 +74,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_userData!['username'] ?? 'No Username',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade900,
-                        )),
+                    Text(
+                      _userData!['username'] ?? 'No Username',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade900,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -140,31 +142,12 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade900,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  // Implement edit profile functionality
-                },
-                child: const Text(
-                  'EDIT PROFILE',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ),
           const Divider(),
           Expanded(
             child: SingleChildScrollView(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height,
-                child: ImageGrid(userId: currentUser!.uid,),
+                child: ImageGrid(userId: widget.userId,),
               ),
             ),
           ),

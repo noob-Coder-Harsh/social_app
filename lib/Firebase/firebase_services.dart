@@ -160,4 +160,17 @@ class FirebaseService {
     }
   }
 
+  Future<Map<String, dynamic>?> getUserDataById(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        return userDoc.data() as Map<String, dynamic>?;
+      }
+      return null;
+    } catch (e) {
+      print("Error fetching user data: $e");
+      return null;
+    }
+  }
+
 }
