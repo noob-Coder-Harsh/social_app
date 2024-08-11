@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Homepage/refactored/post_model.dart';
+import 'package:social_app/Utility/utils.dart';
 
 import '../Firebase/firebase_services.dart';
 import '../Homepage/Post/comment.dart';
@@ -86,7 +87,7 @@ class PostCard extends StatelessWidget {
       future: getUserData(post.userId),
       builder: (context, userSnapshot) {
         if (userSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: LinearProgressIndicator());
+          return Center(child: Container());
         } else if (userSnapshot.hasError) {
           return Center(child: Text('Error: ${userSnapshot.error}'));
         } else if (!userSnapshot.hasData || userSnapshot.data == null) {
@@ -119,18 +120,18 @@ class PostCard extends StatelessWidget {
                             child: userData['profile_picture'] != null
                                 ? Image.network(
                               userData['profile_picture'],
-                              width: 25,
-                              height: 25,
+                              width: 30,
+                              height: 30,
                               fit: BoxFit.cover,
                             )
                                 : const Icon(
                               Icons.person,
-                              size: 50,
+                              size: 30,
                             ),
                           ),
                         ),
                         const SizedBox(
-                          width: 5,
+                          width: 10,
                         ),
                         GestureDetector(
                           onTap: () {
@@ -161,10 +162,14 @@ class PostCard extends StatelessWidget {
                             foregroundColor: WidgetStateProperty.all(Colors.white),
                             backgroundColor: WidgetStateProperty.all(Colors.grey.shade900),
                           ),
-                          onPressed: () {},
+                          onPressed: (){Utils.displayMessage(context,"Feature not available now");},
                           child: const Text('Follow'),
                         ),
-                        IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz)),
+                        IconButton(
+                            onPressed: () {
+                              showPopupMenu(context);
+                            },
+                            icon: const Icon(Icons.more_vert)),
                       ],
                     )
                 ),
@@ -195,6 +200,51 @@ class PostCard extends StatelessWidget {
         }
       },
     );
+  }
+
+  void showPopupMenu(BuildContext context) {
+    final RenderBox overlay =
+    Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final Offset position = button.localToGlobal(Offset.zero);
+
+    final RelativeRect positionPopup = RelativeRect.fromRect(
+      Rect.fromPoints(
+        position.translate(
+            button.size.width, 0), // Adjust position to the right of the button
+        position.translate(button.size.width, button.size.height),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu(
+      context: context,
+      position: positionPopup,
+      items: [
+        PopupMenuItem(
+          onTap: (){Utils.displayMessage(context,"Feature not available now");},
+          value: 'edit',
+          child: const Text('Edit'),
+        ),
+        PopupMenuItem(
+          onTap: (){Utils.displayMessage(context,"Feature not available now");},
+          value: 'delete',
+          child: const Text('Delete'),
+        ),
+        PopupMenuItem(
+          onTap: (){Utils.displayMessage(context,"Feature not available now");},
+          value: 'hide',
+          child: const Text('Hide'),
+        ),
+      ],
+      elevation: 8.0,
+    ).then((value) {
+      if (value == 'edit') {
+        // Handle edit action
+      } else if (value == 'delete') {
+        // Handle delete action
+      }
+    });
   }
 }
 

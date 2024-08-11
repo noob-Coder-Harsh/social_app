@@ -20,7 +20,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
   final textController = TextEditingController();
   File? _imageFile;
   File? _videoFile;
-  bool _isPublic = true; // Add this line to represent the privacy status
+  bool _isPublic = true;
   late PostService _postService;
 
   @override
@@ -29,16 +29,50 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
     _postService = PostService(currentUser);
   }
 
-  @override
+  void _pickImage() async {
+    final pickedImage = await Utils.pickImage();
+    setState(() {
+      _imageFile = pickedImage;
+      _videoFile = null;
+    });
+  }
+
+  void _pickVideo() async {
+    final pickedVideo = await Utils.pickVideo();
+    setState(() {
+      _videoFile = pickedVideo;
+      _imageFile = null;
+    });
+  }
+
+  void _discardMedia() {
+    setState(() {
+      _imageFile = null;
+      _videoFile = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: const Border(top: BorderSide(width: 1)),
-        color: Colors.grey[900],
+    return Scaffold(
+      backgroundColor: Colors.grey.shade300,
+      appBar: AppBar(
+        backgroundColor: Colors.grey.shade300,
+        title: const Text('New Post'),
+        actions: [
+          TextButton.icon(
+            onPressed: postMessage,
+            label: Text("Post",style: TextStyle(color: Colors.grey.shade900),),
+            icon: Icon(Icons.publish_sharp,color: Colors.grey.shade900,),
+          )
+        ],
       ),
-      child: SingleChildScrollView(
+      body: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: const Border(top: BorderSide(width: 1)),
+          color: Colors.grey[900],
+        ),
         child: Column(
           children: [
             Row(
@@ -48,79 +82,71 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
                     padding: const EdgeInsets.all(8.0),
                     child: MyTextField(
                       controller: textController,
-                      hintText: 'write something to post',
+                      hintText: 'Write something to post...',
                       obscureText: false,
                       type: TextInputType.text,
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    postMessage();
-                  },
-                  icon: Icon(
-                    Icons.arrow_circle_up,
-                    color: Colors.grey.shade300,
-                  ),
-                )
+                // Column(
+                //   children: [
+                //     const Text(
+                //       'Public',
+                //       style: TextStyle(color: Colors.white),
+                //     ),
+                //     Switch(
+                //       value: _isPublic,
+                //       onChanged: (value) {
+                //         setState(() {
+                //           _isPublic = value;
+                //         });
+                //       },
+                //     ),
+                //   ],
+                // ),
               ],
             ),
             const SizedBox(height: 10),
-            _imageFile != null
-                ? Container(
-                    constraints: const BoxConstraints(
-                      maxHeight: 500, // Adjust as needed
-                    ),
-                    child: Image.file(_imageFile!),
-                  )
-                : _videoFile != null
-                    ? Container(
-                        constraints: const BoxConstraints(
-                          maxHeight: 500, // Adjust as needed
-                        ),
-                        child: VideoPlayerWidget(videoFile: _videoFile!),
-                      )
-                    : Container(),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            _imageFile != null || _videoFile != null
+                ? Column(
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    _imageFile = await Utils.pickImage();
-                    setState(() {
-                      _videoFile = null; // Clear video if an image is picked.
-                    });
-                  },
-                  child: const Text('Add Image'),
+                Container(
+                  constraints: const BoxConstraints(
+                    maxHeight: 500,
+                  ),
+                  child: _imageFile != null
+                      ? Image.file(_imageFile!)
+                      : VideoPlayerWidget(videoFile: _videoFile!),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    _videoFile = await Utils.pickVideo();
-                    setState(() {
-                      _imageFile = null; // Clear image if a video is picked.
-                    });
-                  },
-                  child: const Text('Add Video'),
-                ),
-                Column(
-                  children: [
-                    const Text(
-                      'Public',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Switch(
-                      value: _isPublic,
-                      onChanged: (value) {
-                        setState(() {
-                          _isPublic = value;
-                        });
-                      },
-                    ),
-                  ],
+                TextButton.icon(
+                  onPressed: _discardMedia,
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  label: const Text(
+                    'Remove Media',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
+            )
+                : Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.image, color: Colors.white),
+                    onPressed: _pickImage,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.videocam, color: Colors.white),
+                    onPressed: _pickVideo,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -128,7 +154,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
     );
   }
 
-  void postMessage() async {
+void postMessage() async {
     if (textController.text.isEmpty && _imageFile == null && _videoFile == null) {
       _postService.showErrorDialog(context, 'Error', 'Please write something, add an image, or add a video.');
       return;

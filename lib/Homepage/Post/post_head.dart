@@ -87,7 +87,7 @@ class _PostHeadState extends State<PostHead> {
   }
   void showPopupMenu(BuildContext context) {
     final RenderBox overlay =
-    Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    Overlay.of(context).context.findRenderObject() as RenderBox;
     final RenderBox button = context.findRenderObject() as RenderBox;
     final Offset position = button.localToGlobal(Offset.zero);
 
