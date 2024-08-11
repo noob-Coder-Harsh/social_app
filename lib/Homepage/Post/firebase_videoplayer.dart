@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class FirebaseVideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
@@ -24,8 +23,6 @@ class _FirebaseVideoPlayerWidgetState extends State<FirebaseVideoPlayerWidget> {
       ..initialize().then((_) {
         setState(() {});
         _controller.setLooping(true);
-        _controller.play();
-        _isPlaying = true;
       });
   }
 
@@ -51,29 +48,19 @@ class _FirebaseVideoPlayerWidgetState extends State<FirebaseVideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: Key(widget.videoUrl),
-      onVisibilityChanged: (info) {
-        if (info.visibleFraction == 0) {
-          _controller.pause();
-        } else if (info.visibleFraction > 0) {
-          _controller.play();
-        }
-      },
-      child: AspectRatio(
-        aspectRatio: _controller.value.aspectRatio,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VideoPlayer(_controller),
-            if (!_controller.value.isInitialized)
-              const Center(
-                child: CircularProgressIndicator(),
-              )
-            else
-              _buildControls(),
-          ],
-        ),
+    return AspectRatio(
+      aspectRatio: _controller.value.aspectRatio,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          VideoPlayer(_controller),
+          if (!_controller.value.isInitialized)
+            const Center(
+              child: CircularProgressIndicator(),
+            )
+          else
+            _buildControls(),
+        ],
       ),
     );
   }
@@ -85,6 +72,7 @@ class _FirebaseVideoPlayerWidgetState extends State<FirebaseVideoPlayerWidget> {
         VideoProgressIndicator(
           _controller,
           allowScrubbing: true,
+          colors: VideoProgressColors(playedColor: Colors.grey.shade900),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,7 +93,7 @@ class _FirebaseVideoPlayerWidgetState extends State<FirebaseVideoPlayerWidget> {
             ),
           ],
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
       ],
     );
   }

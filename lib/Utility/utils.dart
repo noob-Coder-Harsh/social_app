@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 
 class Utils {
   static void displayMessage(BuildContext context, String message) {
@@ -48,5 +50,10 @@ class Utils {
     String day = dateTime.day.toString();
     String formattedData = '$day/$month/$year';
     return formattedData;
+  }
+
+  static Future<bool> isConnected() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
   }
 }

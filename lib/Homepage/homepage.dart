@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Homepage/refactored/post_model.dart';
@@ -8,6 +10,10 @@ import '../Homepage/Post/comment.dart';
 import '../Homepage/Post/firebase_videoplayer.dart';
 import '../Homepage/Post/like_button.dart';
 import '../Profile/other_profile_page.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:dio/dio.dart';
+
 
 class HomeFeed extends StatefulWidget {
   const HomeFeed({super.key});
@@ -52,7 +58,7 @@ class _HomeFeedState extends State<HomeFeed> {
         future: firebaseService.fetchUserPosts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: LinearProgressIndicator(semanticsLabel: 'Loading...',));
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -165,11 +171,7 @@ class PostCard extends StatelessWidget {
                           onPressed: (){Utils.displayMessage(context,"Feature not available now");},
                           child: const Text('Follow'),
                         ),
-                        IconButton(
-                            onPressed: () {
-                              showPopupMenu(context);
-                            },
-                            icon: const Icon(Icons.more_vert)),
+                        PostOptionsMenu(postId: post.id, imageUrl: post.imageUrl ?? "", videoUrl: post.videoUrl ?? "", userId: post.userId,),
                       ],
                     )
                 ),
@@ -201,51 +203,6 @@ class PostCard extends StatelessWidget {
       },
     );
   }
-
-  void showPopupMenu(BuildContext context) {
-    final RenderBox overlay =
-    Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RenderBox button = context.findRenderObject() as RenderBox;
-    final Offset position = button.localToGlobal(Offset.zero);
-
-    final RelativeRect positionPopup = RelativeRect.fromRect(
-      Rect.fromPoints(
-        position.translate(
-            button.size.width, 0), // Adjust position to the right of the button
-        position.translate(button.size.width, button.size.height),
-      ),
-      Offset.zero & overlay.size,
-    );
-
-    showMenu(
-      context: context,
-      position: positionPopup,
-      items: [
-        PopupMenuItem(
-          onTap: (){Utils.displayMessage(context,"Feature not available now");},
-          value: 'edit',
-          child: const Text('Edit'),
-        ),
-        PopupMenuItem(
-          onTap: (){Utils.displayMessage(context,"Feature not available now");},
-          value: 'delete',
-          child: const Text('Delete'),
-        ),
-        PopupMenuItem(
-          onTap: (){Utils.displayMessage(context,"Feature not available now");},
-          value: 'hide',
-          child: const Text('Hide'),
-        ),
-      ],
-      elevation: 8.0,
-    ).then((value) {
-      if (value == 'edit') {
-        // Handle edit action
-      } else if (value == 'delete') {
-        // Handle delete action
-      }
-    });
-  }
 }
 
 class MediaLoader extends StatefulWidget {
@@ -261,8 +218,16 @@ class MediaLoader extends StatefulWidget {
 class _MediaLoaderState extends State<MediaLoader> {
   @override
   Widget build(BuildContext context) {
-    return widget.isImage
-        ? Image.network(
+    return FutureBuilder<bool>(
+      future: Utils.isConnected(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError || !snapshot.data!) {
+          return Center(child: Text('No internet connection'));
+        } else {
+          return widget.isImage
+              ? Image.network(
             widget.url,
             loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
               if (loadingProgress == null) {
@@ -278,6 +243,130 @@ class _MediaLoaderState extends State<MediaLoader> {
               }
             },
           )
-        : FirebaseVideoPlayerWidget(videoUrl: widget.url); // Use your VideoPlayerWidget here
+              : FirebaseVideoPlayerWidget(videoUrl: widget.url);
+        }
+      },
+    );
   }
 }
+
+class PostOptionsMenu extends StatelessWidget {
+  final String postId;
+  final String imageUrl;
+  final String videoUrl;
+  final String userId;
+
+  PostOptionsMenu({
+    Key? key,
+    required this.postId,
+    required this.imageUrl,
+    required this.videoUrl,
+    required this.userId,
+  }) : super(key: key);
+
+ final FirebaseService firebaseService = FirebaseService();
+
+  void showPopupMenu(BuildContext context) {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final Offset position = button.localToGlobal(Offset.zero);
+
+    final RelativeRect positionPopup = RelativeRect.fromRect(
+      Rect.fromPoints(
+        position.translate(button.size.width, 0),
+        position.translate(button.size.width, button.size.height),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu(
+      context: context,
+      position: positionPopup,
+      items: [
+        PopupMenuItem(
+          onTap: () => _saveMedia(context),
+          value: 'save',
+          child: const Text('Save'),
+        ),
+        PopupMenuItem(
+          onTap: () => _deletePost(context),
+          value: 'delete',
+          child: const Text('Delete'),
+        ),
+        PopupMenuItem(
+          onTap: () {
+            Utils.displayMessage(context, "Feature not available now");
+          },
+          value: 'hide',
+          child: const Text('Follow'),
+        ),
+      ],
+      elevation: 8.0,
+    );
+  }
+
+  Future<void> _saveMedia(BuildContext context) async {
+    bool connected = await Utils.isConnected();
+    if (!connected) {
+      Utils.displayMessage(context, "No internet connection. Cannot save media.");
+      return;
+    }
+    String mediaUrl = imageUrl.isNotEmpty ? imageUrl : videoUrl;
+    if (mediaUrl.isEmpty) {
+      Utils.displayMessage(context, "No media to save");
+      return;
+    }
+
+    try {
+      // Check for storage permission
+      var status = await Permission.storage.request();
+      if (!status.isGranted) {
+        Utils.displayMessage(context, "Storage permission denied");
+        return;
+      }
+
+      // Get the application's documents directory
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String savePath = "${appDocDir.path}/${mediaUrl.split('/').last}";
+
+      // Download the file
+      Dio dio = Dio();
+      await dio.download(mediaUrl, savePath);
+
+      // Notify the user
+      Utils.displayMessage(context, "Media saved to $savePath");
+    } catch (error) {
+      Utils.displayMessage(context, "Failed to save media: $error");
+    }
+  }
+
+  void _deletePost(BuildContext context) async {
+    try {
+      await firebaseService.deletePost(postId, userId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Post deleted"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$error"),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.more_vert),
+      onPressed: () {
+        showPopupMenu(context);
+      },
+    );
+  }
+}
+

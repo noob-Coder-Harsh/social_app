@@ -173,4 +173,29 @@ class FirebaseService {
     }
   }
 
+  Future<void> deletePost(String postId, String userId) async {
+    if (FirebaseAuth.instance.currentUser!.uid != userId) {
+      throw Exception("You can only delete your own posts.");
+    }
+
+    try {
+      final commentDocs = await _firestore
+          .collection("UserPosts")
+          .doc(postId)
+          .collection("Comments")
+          .get();
+
+      for (var doc in commentDocs.docs) {
+        await _firestore
+            .collection("UserPosts")
+            .doc(postId)
+            .collection("Comments")
+            .doc(doc.id)
+            .delete();
+      }
+      await _firestore.collection("UserPosts").doc(postId).delete();
+    } catch (error) {
+      throw Exception("Failed to delete post: $error");
+    }
+  }
 }
