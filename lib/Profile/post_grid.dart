@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:social_app/Firebase/firebase_services.dart';
-import 'package:social_app/Homepage/refactored/post_model.dart';
+import 'package:social_app/Homepage/post_model.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
-import '../Homepage/Post/firebase_videoplayer.dart';
+import '../Homepage/widgets/firebase_videoplayer.dart';
 
 class ImageGrid extends StatefulWidget {
  final String userId;

@@ -2,11 +2,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:social_app/Homepage/Post/comment.dart';
-import 'package:social_app/Homepage/Post/post_head.dart';
+import 'package:social_app/Homepage/widgets/comment.dart';
+import 'package:social_app/unused/post_head.dart';
 import 'package:social_app/Homepage/helper_methods.dart';
 
-import 'firebase_videoplayer.dart';
+import '../Homepage/widgets/firebase_videoplayer.dart';
 
 class FeedPost extends StatefulWidget {
   final String user;

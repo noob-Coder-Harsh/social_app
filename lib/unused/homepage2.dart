@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_app/Homepage/helper_methods.dart';
-import 'package:social_app/Homepage/Post/feed_post.dart';
+import 'package:social_app/unused/feed_post.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

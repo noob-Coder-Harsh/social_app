@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../helper_methods.dart';
+import '../Homepage/helper_methods.dart';
 
 
 class EditPostPage extends StatefulWidget {

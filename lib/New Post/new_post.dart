@@ -154,7 +154,7 @@ class _NewPostsBottomState extends State<NewPostsBottom> {
     );
   }
 
-void postMessage() async {
+  void postMessage() async {
     if (textController.text.isEmpty && _imageFile == null && _videoFile == null) {
       _postService.showErrorDialog(context, 'Error', 'Please write something, add an image, or add a video.');
       return;
@@ -162,21 +162,28 @@ void postMessage() async {
 
     try {
       _postService.showProgressDialog(context);
+      print('ProgressDialog shown');
 
       String? imageUrl;
       String? videoUrl;
 
       if (_imageFile != null) {
+        print('Uploading image...');
         imageUrl = await _postService.uploadFileToStorage(_imageFile!);
+        print('Image uploaded: $imageUrl');
       }
       if (_videoFile != null) {
+        print('Uploading video...');
         videoUrl = await _postService.uploadFileToStorage(_videoFile!);
+        print('Video uploaded: $videoUrl');
       }
 
       if (!mounted) return;
       _postService.hideProgressDialog(context);
+      print('ProgressDialog hidden');
 
       await _postService.postToFirestore(imageUrl, videoUrl, textController.text, _isPublic);
+      print('Post submitted to Firestore');
 
       if (!mounted) return;
       setState(() {
@@ -185,9 +192,12 @@ void postMessage() async {
         _videoFile = null;
         _isPublic = true;
       });
+      print('State reset');
     } catch (e) {
+      print('Error in postMessage: $e');
       if (mounted) {
         _postService.hideProgressDialog(context);
+        print('ProgressDialog hidden after error');
         _postService.showErrorDialog(context, 'Error', 'An error occurred while uploading file. Please try again later.');
       }
     }
